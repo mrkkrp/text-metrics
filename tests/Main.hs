@@ -34,6 +34,7 @@
 
 module Main (main) where
 
+import Data.Ratio
 import Data.Text (Text)
 import Data.Text.Metrics
 import Test.Hspec
@@ -42,8 +43,59 @@ import qualified Data.Text as T
 main :: IO ()
 main = hspec spec
 
+-- TODO add property tests for properties like “we get the same result if we
+-- swap arguments”
+
 spec :: Spec
-spec =
+spec = do
+  describe "levenshtein" $ do
+    testPair levenshtein "kitten"   "sitting"  3
+    testPair levenshtein "sitting"  "kitten"   3
+    testPair levenshtein "cake"     "drake"    2
+    testPair levenshtein "drake"    "cake"     2
+    testPair levenshtein "saturday" "sunday"   3
+    testPair levenshtein "sunday"   "saturday" 3
+    testPair levenshtein "red"      "wax"      3
+    testPair levenshtein "wax"      "red"      3
+    testPair levenshtein "lucky"    "lucky"    0
+    testPair levenshtein ""         ""         0
+  describe "levenshteinNorm" $ do
+    testPair levenshteinNorm "kitten"   "sitting"  (4 % 7)
+    testPair levenshteinNorm "sitting"  "kitten"   (4 % 7)
+    testPair levenshteinNorm "cake"     "drake"    (3 % 5)
+    testPair levenshteinNorm "drake"    "cake"     (3 % 5)
+    testPair levenshteinNorm "saturday" "sunday"   (5 % 8)
+    testPair levenshteinNorm "sunday"   "saturday" (5 % 8)
+    testPair levenshteinNorm "red"      "wax"      (0 % 1)
+    testPair levenshteinNorm "wax"      "red"      (0 % 1)
+    testPair levenshteinNorm "lucky"    "lucky"    (1 % 1)
+    testPair levenshteinNorm ""         ""         (1 % 1)
+  describe "damerauLevenshtein" $ do
+    testPair damerauLevenshtein "veryvery long" "very long"     4
+    testPair damerauLevenshtein "very long"     "veryvery long" 4
+    testPair damerauLevenshtein "thing"         "think"         1
+    testPair damerauLevenshtein "think"         "thing"         1
+    testPair damerauLevenshtein "nose"          "ones"          2
+    testPair damerauLevenshtein "ones"          "nose"          2
+    testPair damerauLevenshtein "thing"         "sign"          3
+    testPair damerauLevenshtein "sign"          "thing"         3
+    testPair damerauLevenshtein "red"           "wax"           3
+    testPair damerauLevenshtein "wax"           "red"           3
+    testPair damerauLevenshtein "lucky"         "lucky"         0
+    testPair damerauLevenshtein ""              ""              0
+  describe "damerauLevenshteinNorm" $ do
+    testPair damerauLevenshteinNorm "veryvery long" "very long"     (9 % 13)
+    testPair damerauLevenshteinNorm "very long"     "veryvery long" (9 % 13)
+    testPair damerauLevenshteinNorm "thing"         "think"         (4 % 5)
+    testPair damerauLevenshteinNorm "think"         "thing"         (4 % 5)
+    testPair damerauLevenshteinNorm "nose"          "ones"          (1 % 2)
+    testPair damerauLevenshteinNorm "ones"          "nose"          (1 % 2)
+    testPair damerauLevenshteinNorm "thing"         "sign"          (2 % 5)
+    testPair damerauLevenshteinNorm "sign"          "thing"         (2 % 5)
+    testPair damerauLevenshteinNorm "red"           "wax"           (0 % 1)
+    testPair damerauLevenshteinNorm "wax"           "red"           (0 % 1)
+    testPair damerauLevenshteinNorm "lucky"         "lucky"         (1 % 1)
+    testPair damerauLevenshteinNorm ""              ""              (1 % 1)
   describe "hamming" $ do
     testPair hamming "karolin" "kathrin" (Just 3)
     testPair hamming "kathrin" "karolin" (Just 3)
@@ -60,6 +112,49 @@ spec =
     testPair hamming "lucky"   "lucky"   (Just 0)
     testPair hamming ""        ""        (Just 0)
     testPair hamming "small"   "big"     Nothing
+  describe "overlap" $ do
+    testPair overlap "fly"       "butterfly" (Just (1 % 1))
+    testPair overlap "butterfly" "fly"       (Just (1 % 1))
+    testPair overlap "night"     "nacht"     (Just (3 % 5))
+    testPair overlap "nacht"     "night"     (Just (3 % 5))
+    testPair overlap "context"   "contact"   (Just (5 % 7))
+    testPair overlap "contact"   "context"   (Just (5 % 7))
+    testPair overlap "red"       "wax"       (Just (0 % 1))
+    testPair overlap "wax"       "red"       (Just (0 % 1))
+    testPair overlap "lucky"     "lucky"     (Just (1 % 1))
+  describe "jaccard" $ do
+    testPair jaccard "xxx"     "xyx"     (1 % 2)
+    testPair jaccard "night"   "nacht"   (3 % 7)
+    testPair jaccard "nacht"   "night"   (3 % 7)
+    testPair jaccard "context" "contact" (5 % 9)
+    testPair jaccard "context" "contact" (5 % 9)
+    testPair jaccard "lucky"   "lucky"   (1 % 1)
+    testPair jaccard ""        ""        (1 % 1)
+  describe "jaro" $ do
+    testPair jaro "aa"     "a"        (5  % 6)
+    testPair jaro "a"      "aa"       (5  % 6)
+    testPair jaro "martha" "marhta"   (17 % 18)
+    testPair jaro "dwayne" "duane"    (37 % 45)
+    testPair jaro "dixon"  "dicksonx" (23 % 30)
+    testPair jaro "jones"  "johnson"  (83 % 105)
+    testPair jaro "brain"  "brian"    (14 % 15)
+    testPair jaro "five"   "ten"      (0  % 1)
+    testPair jaro "lucky"  "lucky"    (1  % 1)
+    testPair jaro ""       ""         (0  % 1)
+  describe "jaroWinkler" $ do
+    testPair jaroWinkler "aa"     "a"        (17  % 20)
+    testPair jaroWinkler "a"      "aa"       (17  % 20)
+    testPair jaroWinkler "martha" "marhta"   (173 % 180)
+    testPair jaroWinkler "dwayne" "duane"    (21  % 25)
+    testPair jaroWinkler "dixon"  "dicksonx" (61  % 75)
+    testPair jaroWinkler "jones"  "johnson"  (437 % 525)
+    testPair jaroWinkler "brain"  "brian"    (71  % 75)
+    testPair jaroWinkler "five"   "ten"      (0  % 1)
+    testPair jaroWinkler "lucky"  "lucky"    (1  % 1)
+    testPair jaroWinkler ""       ""         (0  % 1)
+
+-- | Create spec for given metric function applying it to two 'Text' values
+-- and comparing the result with expected one.
 
 testPair :: (Eq a, Show a)
   => (Text -> Text -> a) -- ^ Function to test
