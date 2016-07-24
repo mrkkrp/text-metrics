@@ -35,7 +35,14 @@
 #define TEXT_METRICS_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
-unsigned int tmetrics_hamming_distance (unsigned int len, uint16_t *a, uint16_t *b);
+/* Levenshein variants */
+
+unsigned int tmetrics_levenshtein (unsigned int, uint16_t *, unsigned int, uint16_t *);
+
+/* Other */
+
+unsigned int tmetrics_hamming (unsigned int, uint16_t *, uint16_t *);
 
 #endif /* TEXT_METRICS_H */

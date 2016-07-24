@@ -40,7 +40,10 @@ import qualified Data.Text.Foreign as TF
 -- | Levenshtein distance between two 'Text' values.
 
 levenshtein :: Text -> Text -> Natural
-levenshtein _ _ = 0 -- TODO
+levenshtein = withTwo c_levenshtein
+
+foreign import ccall unsafe "tmetrics_levenshtein"
+  c_levenshtein :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
 
 -- | Normalized Levenshtein distance between two 'Text' values.
 
@@ -68,11 +71,11 @@ hamming a b =
   if T.length a == T.length b
     then Just . unsafePerformIO . TF.useAsPtr a $ \aptr size ->
       TF.useAsPtr b $ \bptr _ ->
-        fromIntegral <$> c_hamming_distance (fromIntegral size) aptr bptr
+        fromIntegral <$> c_hamming (fromIntegral size) aptr bptr
     else Nothing
 
-foreign import ccall unsafe "tmetrics_hamming_distance"
-  c_hamming_distance :: CUInt -> Ptr Word16 -> Ptr Word16 -> IO CUInt
+foreign import ccall unsafe "tmetrics_hamming"
+  c_hamming :: CUInt -> Ptr Word16 -> Ptr Word16 -> IO CUInt
 
 -- | Overlap coefficient between two 'Text' values which both should be not
 -- empty or 'Nothing' will be returned.
@@ -94,3 +97,17 @@ jaro _ _ = 1 % 1 -- TODO
 
 jaroWinkler :: Text -> Text -> Ratio Natural
 jaroWinkler _ _ = 1 % 1 -- TODO
+
+----------------------------------------------------------------------------
+-- Helpers
+
+withTwo
+  :: (CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt)
+  -> Text
+  -> Text
+  -> Natural
+withTwo f a b =
+  unsafePerformIO . TF.useAsPtr a $ \aptr asize ->
+    TF.useAsPtr b $ \bptr bsize ->
+      fromIntegral <$> f (fromIntegral asize) aptr (fromIntegral bsize) bptr
+{-# INLINE withTwo #-}
