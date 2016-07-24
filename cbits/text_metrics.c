@@ -33,4 +33,12 @@
 
 #include "text_metrics.h"
 
-/* TODO */
+unsigned int tmetrics_hamming_distance (unsigned int len, uint16_t *a, uint16_t *b)
+{
+  unsigned int acc = 0, i;
+  for (i = 0; i < len; i++)
+    {
+      if (*(a + i) != *(b + i)) acc++;
+    }
+  return acc;
+}

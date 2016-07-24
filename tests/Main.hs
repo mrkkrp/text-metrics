@@ -30,12 +30,42 @@
 -- ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 -- POSSIBILITY OF SUCH DAMAGE.
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main (main) where
 
+import Data.Text (Text)
+import Data.Text.Metrics
 import Test.Hspec
+import qualified Data.Text as T
 
 main :: IO ()
 main = hspec spec
 
 spec :: Spec
-spec = return ()
+spec =
+  describe "hamming" $ do
+    testPair hamming "karolin" "kathrin" (Just 3)
+    testPair hamming "kathrin" "karolin" (Just 3)
+    testPair hamming "karolin" "kerstin" (Just 3)
+    testPair hamming "kerstin" "karolin" (Just 3)
+    testPair hamming "1011101" "1001001" (Just 2)
+    testPair hamming "1001001" "1011101" (Just 2)
+    testPair hamming "2173896" "2233796" (Just 3)
+    testPair hamming "2233796" "2173896" (Just 3)
+    testPair hamming "toned"   "roses"   (Just 3)
+    testPair hamming "roses"   "toned"   (Just 3)
+    testPair hamming "red"     "wax"     (Just 3)
+    testPair hamming "wax"     "red"     (Just 3)
+    testPair hamming "lucky"   "lucky"   (Just 0)
+    testPair hamming ""        ""        (Just 0)
+    testPair hamming "small"   "big"     Nothing
+
+testPair :: (Eq a, Show a)
+  => (Text -> Text -> a) -- ^ Function to test
+  -> Text              -- ^ First input
+  -> Text              -- ^ Second input
+  -> a                 -- ^ Expected result
+  -> SpecWith ()
+testPair f a b r = it ("‘" ++ T.unpack a ++ "’ and ‘" ++ T.unpack b ++ "’") $
+  f a b `shouldBe` r

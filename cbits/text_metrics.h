@@ -34,6 +34,8 @@
 #ifndef TEXT_METRICS_H
 #define TEXT_METRICS_H
 
-/* TODO */
+#include <stdint.h>
+
+unsigned int tmetrics_hamming_distance (unsigned int len, uint16_t *a, uint16_t *b);
 
 #endif /* TEXT_METRICS_H */
