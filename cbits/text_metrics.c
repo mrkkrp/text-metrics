@@ -60,11 +60,12 @@ unsigned int tmetrics_levenshtein (unsigned int la, uint16_t *a, unsigned int lb
           *(v1 + j + 1) = x > y ? (y > z ? z : y) : (x > z ? z : x);
         }
 
-      for (unsigned int j = 0; j < v_len; j++)
-        *(v0 + j) = *(v1 + j);
+      unsigned int *ptr = v0;
+      v0 = v1;
+      v1 = ptr;
     }
 
-  unsigned int result = *(v1 + lb);
+  unsigned int result = *(v0 + lb);
 
   free(v0);
   free(v1);
