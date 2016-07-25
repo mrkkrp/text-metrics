@@ -53,7 +53,10 @@ levenshteinNorm _ _ = 1 % 1 -- TODO
 -- | Damerau-Levenshtein distance between two 'Text' values.
 
 damerauLevenshtein :: Text -> Text -> Natural
-damerauLevenshtein _ _ = 0 -- TODO
+damerauLevenshtein = withTwo c_damerau_levenshtein
+
+foreign import ccall unsafe "tmetrics_damerau_levenshtein"
+  c_damerau_levenshtein :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
 
 -- | Normalized damerau-Levenshtein distance between two 'Text' values.
 

@@ -40,6 +40,7 @@
 /* Levenshein variants */
 
 unsigned int tmetrics_levenshtein (unsigned int, uint16_t *, unsigned int, uint16_t *);
+unsigned int tmetrics_damerau_levenshtein (unsigned int, uint16_t *, unsigned int, uint16_t *);
 
 /* Other */
 

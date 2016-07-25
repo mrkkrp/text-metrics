@@ -73,6 +73,54 @@ unsigned int tmetrics_levenshtein (unsigned int la, uint16_t *a, unsigned int lb
   return result;
 }
 
+unsigned int tmetrics_damerau_levenshtein (unsigned int la, uint16_t *a, unsigned int lb, uint16_t *b)
+{
+  if (la == 0) return lb;
+  if (lb == 0) return la;
+
+  unsigned int v_len = lb + 1;
+  unsigned int *v0 = malloc(sizeof(unsigned int) * v_len);
+  unsigned int *v1 = malloc(sizeof(unsigned int) * v_len);
+  unsigned int *v2 = malloc(sizeof(unsigned int) * v_len);
+
+  for (unsigned int i = 0; i < v_len; i++)
+    v0[i] = i;
+
+  for (unsigned int i = 0; i < la; i++)
+    {
+      v1[0] = i + 1;
+
+      for (unsigned int j = 0; j < lb; j++)
+        {
+          unsigned int cost = *(a + i) == *(b + j) ? 0 : 1;
+          unsigned int x = *(v1 + j) + 1;
+          unsigned int y = *(v0 + j + 1) + 1;
+          unsigned int z = *(v0 + j) + cost;
+          *(v1 + j + 1) = x > y ? (y > z ? z : y) : (x > z ? z : x);
+          unsigned int val = *(v2 + j - 1) + cost;
+          if ( i > 0                    &&
+               j > 0                    &&
+               *(a + i) == *(b + j - 1) &&
+               *(a + i - 1) == *(b + j) &&
+               val < *(v1 + j + 1) )
+            *(v1 + j + 1) = val;
+        }
+
+      unsigned int *ptr = v0;
+      v0 = v1;
+      v1 = v2;
+      v2 = ptr;
+    }
+
+  unsigned int result = *(v0 + lb);
+
+  free(v0);
+  free(v1);
+  free(v2);
+
+  return result;
+}
+
 /* Other */
 
 unsigned int tmetrics_hamming (unsigned int len, uint16_t *a, uint16_t *b)
