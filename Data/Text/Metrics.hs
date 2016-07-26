@@ -45,10 +45,14 @@ levenshtein = withTwo c_levenshtein
 foreign import ccall unsafe "tmetrics_levenshtein"
   c_levenshtein :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
 
--- | Normalized Levenshtein distance between two 'Text' values.
+-- | Return normalized Levenshtein distance between two 'Text' values.
+-- Result is a non-negative real number (represented as @'Ratio'
+-- 'Natural'@), where 0 signifies no similarity between the strings, while 1
+-- means exact match.
 
 levenshteinNorm :: Text -> Text -> Ratio Natural
-levenshteinNorm _ _ = 1 % 1 -- TODO
+levenshteinNorm = norm levenshtein
+{-# INLINE levenshteinNorm #-}
 
 -- | Damerau-Levenshtein distance between two 'Text' values.
 
@@ -58,10 +62,14 @@ damerauLevenshtein = withTwo c_damerau_levenshtein
 foreign import ccall unsafe "tmetrics_damerau_levenshtein"
   c_damerau_levenshtein :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
 
--- | Normalized damerau-Levenshtein distance between two 'Text' values.
+-- | Return normalized damerau-Levenshtein distance between two 'Text'
+-- values. Result is a non-negative real number (represented as @'Ration'
+-- 'Natural'@), where 0 signifies no similarity between the strings, while 1
+-- means exact match.
 
 damerauLevenshteinNorm :: Text -> Text -> Ratio Natural
-damerauLevenshteinNorm _ _ = 1 % 1 -- TODO
+damerauLevenshteinNorm = norm damerauLevenshtein
+{-# INLINE damerauLevenshteinNorm #-}
 
 ----------------------------------------------------------------------------
 -- Other
@@ -114,3 +122,11 @@ withTwo f a b =
     TF.useAsPtr b $ \bptr bsize ->
       fromIntegral <$> f (fromIntegral asize) aptr (fromIntegral bsize) bptr
 {-# INLINE withTwo #-}
+
+norm :: (Text -> Text -> Natural) -> Text -> Text -> Ratio Natural
+norm f a b =
+  let r = f a b
+  in if r == 0
+       then 1 % 1
+       else 1 % 1 - r % fromIntegral (max (T.length a) (T.length b))
+{-# INLINE norm #-}
