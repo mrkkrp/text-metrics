@@ -43,15 +43,16 @@ unsigned int tmetrics_levenshtein (unsigned int la, uint16_t *a, unsigned int lb
   unsigned int v_len = lb + 1;
   unsigned int *v0 = malloc(sizeof(unsigned int) * v_len);
   unsigned int *v1 = malloc(sizeof(unsigned int) * v_len);
+  unsigned int i, j;
 
-  for (unsigned int i = 0; i < v_len; i++)
+  for (i = 0; i < v_len; i++)
     v0[i] = i;
 
-  for (unsigned int i = 0; i < la; i++)
+  for (i = 0; i < la; i++)
     {
       v1[0] = i + 1;
 
-      for (unsigned int j = 0; j < lb; j++)
+      for (j = 0; j < lb; j++)
         {
           unsigned int cost = *(a + i) == *(b + j) ? 0 : 1;
           unsigned int x = *(v1 + j) + 1;
@@ -82,15 +83,16 @@ unsigned int tmetrics_damerau_levenshtein (unsigned int la, uint16_t *a, unsigne
   unsigned int *v0 = malloc(sizeof(unsigned int) * v_len);
   unsigned int *v1 = malloc(sizeof(unsigned int) * v_len);
   unsigned int *v2 = malloc(sizeof(unsigned int) * v_len);
+  unsigned int i, j;
 
-  for (unsigned int i = 0; i < v_len; i++)
+  for (i = 0; i < v_len; i++)
     v0[i] = i;
 
-  for (unsigned int i = 0; i < la; i++)
+  for (i = 0; i < la; i++)
     {
       v1[0] = i + 1;
 
-      for (unsigned int j = 0; j < lb; j++)
+      for (j = 0; j < lb; j++)
         {
           unsigned int cost = *(a + i) == *(b + j) ? 0 : 1;
           unsigned int x = *(v1 + j) + 1;
@@ -125,8 +127,8 @@ unsigned int tmetrics_damerau_levenshtein (unsigned int la, uint16_t *a, unsigne
 
 unsigned int tmetrics_hamming (unsigned int len, uint16_t *a, uint16_t *b)
 {
-  unsigned int acc = 0;
-  for (unsigned int i = 0; i < len; i++)
+  unsigned int acc = 0, i;
+  for (i = 0; i < len; i++)
     {
       if (*(a + i) != *(b + i)) acc++;
     }
