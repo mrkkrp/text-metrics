@@ -30,6 +30,7 @@
 -- ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 -- POSSIBILITY OF SUCH DAMAGE.
 
+{-# LANGUAGE CPP                  #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -41,6 +42,10 @@ import Data.Text.Metrics
 import Test.Hspec
 import Test.QuickCheck
 import qualified Data.Text as T
+
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative
+#endif
 
 instance Arbitrary Text where
   arbitrary = T.pack <$> arbitrary
