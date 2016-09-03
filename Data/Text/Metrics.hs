@@ -10,6 +10,7 @@
 -- Efficient implementations of various strings metrics.
 
 {-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE OverloadedStrings        #-}
 
 module Data.Text.Metrics
   ( -- * Levenshtein variants
@@ -18,11 +19,7 @@ module Data.Text.Metrics
   , damerauLevenshtein
   , damerauLevenshteinNorm
     -- * Other
-  , hamming
-  , overlap
-  , jaccard
-  , jaro
-  , jaroWinkler )
+  , hamming )
 where
 
 import Data.Ratio
@@ -31,8 +28,8 @@ import Foreign
 import Foreign.C.Types
 import Numeric.Natural
 import System.IO.Unsafe
-import qualified Data.Text         as T
-import qualified Data.Text.Foreign as TF
+import qualified Data.Text           as T
+import qualified Data.Text.Foreign   as TF
 
 ----------------------------------------------------------------------------
 -- Levenshtein variants
@@ -87,27 +84,6 @@ hamming a b =
 
 foreign import ccall unsafe "tmetrics_hamming"
   c_hamming :: CUInt -> Ptr Word16 -> Ptr Word16 -> IO CUInt
-
--- | Overlap coefficient between two 'Text' values which both should be not
--- empty or 'Nothing' will be returned.
-
-overlap :: Text -> Text -> Maybe (Ratio Natural)
-overlap _ _ = Just (1 % 1) -- TODO
-
--- | Jaccard similarity coefficient between two 'Text' values.
-
-jaccard :: Text -> Text -> Ratio Natural
-jaccard _ _ = 1 % 1 -- TODO
-
--- | Jaro distance between two 'Text' values.
-
-jaro :: Text -> Text -> Ratio Natural
-jaro _ _ = 1 % 1 -- TODO
-
--- | Jaro-Winkler distance between two 'Text' values.
-
-jaroWinkler :: Text -> Text -> Ratio Natural
-jaroWinkler _ _ = 1 % 1 -- TODO
 
 ----------------------------------------------------------------------------
 -- Helpers

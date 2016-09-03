@@ -112,46 +112,6 @@ spec = do
     testPair hamming "lucky"   "lucky"   (Just 0)
     testPair hamming ""        ""        (Just 0)
     testPair hamming "small"   "big"     Nothing
-  describe "overlap" $ do
-    testPair overlap "fly"       "butterfly" (Just (1 % 1))
-    testPair overlap "butterfly" "fly"       (Just (1 % 1))
-    testPair overlap "night"     "nacht"     (Just (3 % 5))
-    testPair overlap "nacht"     "night"     (Just (3 % 5))
-    testPair overlap "context"   "contact"   (Just (5 % 7))
-    testPair overlap "contact"   "context"   (Just (5 % 7))
-    testPair overlap "red"       "wax"       (Just (0 % 1))
-    testPair overlap "wax"       "red"       (Just (0 % 1))
-    testPair overlap "lucky"     "lucky"     (Just (1 % 1))
-  describe "jaccard" $ do
-    testPair jaccard "xxx"     "xyx"     (1 % 2)
-    testPair jaccard "night"   "nacht"   (3 % 7)
-    testPair jaccard "nacht"   "night"   (3 % 7)
-    testPair jaccard "context" "contact" (5 % 9)
-    testPair jaccard "context" "contact" (5 % 9)
-    testPair jaccard "lucky"   "lucky"   (1 % 1)
-    testPair jaccard ""        ""        (1 % 1)
-  describe "jaro" $ do
-    testPair jaro "aa"     "a"        (5  % 6)
-    testPair jaro "a"      "aa"       (5  % 6)
-    testPair jaro "martha" "marhta"   (17 % 18)
-    testPair jaro "dwayne" "duane"    (37 % 45)
-    testPair jaro "dixon"  "dicksonx" (23 % 30)
-    testPair jaro "jones"  "johnson"  (83 % 105)
-    testPair jaro "brain"  "brian"    (14 % 15)
-    testPair jaro "five"   "ten"      (0  % 1)
-    testPair jaro "lucky"  "lucky"    (1  % 1)
-    testPair jaro ""       ""         (0  % 1)
-  describe "jaroWinkler" $ do
-    testPair jaroWinkler "aa"     "a"        (17  % 20)
-    testPair jaroWinkler "a"      "aa"       (17  % 20)
-    testPair jaroWinkler "martha" "marhta"   (173 % 180)
-    testPair jaroWinkler "dwayne" "duane"    (21  % 25)
-    testPair jaroWinkler "dixon"  "dicksonx" (61  % 75)
-    testPair jaroWinkler "jones"  "johnson"  (437 % 525)
-    testPair jaroWinkler "brain"  "brian"    (71  % 75)
-    testPair jaroWinkler "five"   "ten"      (0  % 1)
-    testPair jaroWinkler "lucky"  "lucky"    (1  % 1)
-    testPair jaroWinkler ""       ""         (0  % 1)
 
 -- | Create spec for given metric function applying it to two 'Text' values
 -- and comparing the result with expected one.
