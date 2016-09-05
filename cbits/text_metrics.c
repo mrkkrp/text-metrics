@@ -40,10 +40,18 @@ unsigned int tmetrics_levenshtein (unsigned int la, uint16_t *a, unsigned int lb
   if (la == 0) return lb;
   if (lb == 0) return la;
 
-  unsigned int v_len = lb + 1;
-  unsigned int *v0 = malloc(sizeof(unsigned int) * v_len);
-  unsigned int *v1 = malloc(sizeof(unsigned int) * v_len);
-  unsigned int i, j;
+  unsigned int v_len = lb + 1, *v0, *v1, i, j;
+
+  if (v_len > 255)
+    {
+      v0 = malloc(sizeof(unsigned int) * v_len);
+      v1 = malloc(sizeof(unsigned int) * v_len);
+    }
+  else
+    {
+      v0 = alloca(sizeof(unsigned int) * v_len);
+      v1 = alloca(sizeof(unsigned int) * v_len);
+    }
 
   for (i = 0; i < v_len; i++)
     v0[i] = i;
@@ -68,8 +76,11 @@ unsigned int tmetrics_levenshtein (unsigned int la, uint16_t *a, unsigned int lb
 
   unsigned int result = *(v0 + lb);
 
-  free(v0);
-  free(v1);
+  if (v_len > 255)
+    {
+      free(v0);
+      free(v1);
+    }
 
   return result;
 }
@@ -79,11 +90,20 @@ unsigned int tmetrics_damerau_levenshtein (unsigned int la, uint16_t *a, unsigne
   if (la == 0) return lb;
   if (lb == 0) return la;
 
-  unsigned int v_len = lb + 1;
-  unsigned int *v0 = malloc(sizeof(unsigned int) * v_len);
-  unsigned int *v1 = malloc(sizeof(unsigned int) * v_len);
-  unsigned int *v2 = malloc(sizeof(unsigned int) * v_len);
-  unsigned int i, j;
+  unsigned int v_len = lb + 1, *v0, *v1, *v2, i, j;
+
+  if (v_len > 255)
+    {
+      v0 = malloc(sizeof(unsigned int) * v_len);
+      v1 = malloc(sizeof(unsigned int) * v_len);
+      v2 = malloc(sizeof(unsigned int) * v_len);
+    }
+  else
+    {
+      v0 = alloca(sizeof(unsigned int) * v_len);
+      v1 = alloca(sizeof(unsigned int) * v_len);
+      v2 = alloca(sizeof(unsigned int) * v_len);
+    }
 
   for (i = 0; i < v_len; i++)
     v0[i] = i;
@@ -116,9 +136,12 @@ unsigned int tmetrics_damerau_levenshtein (unsigned int la, uint16_t *a, unsigne
 
   unsigned int result = *(v0 + lb);
 
-  free(v0);
-  free(v1);
-  free(v2);
+  if (v_len > 255)
+    {
+      free(v0);
+      free(v1);
+      free(v2);
+    }
 
   return result;
 }
