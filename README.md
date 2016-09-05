@@ -53,7 +53,7 @@ are:
 
 ## Implementation
 
-All “meat” of the algorithms is written is C in a rather straightforward
+All “meat” of the algorithms is written in C in a rather straightforward
 way. Levenshtein variants are based on the “iterative algorithm with two
 matrix rows” from Wikipedia with additional improvement that we do not copy
 current row of distances into previous row, but just swap the pointers
