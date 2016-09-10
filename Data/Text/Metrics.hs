@@ -11,6 +11,20 @@
 -- It works with strict 'Text' values and returns either 'Natural' numbers
 -- (because the metrics cannot be negative), or @'Ratio' 'Natural'@ values
 -- because returned values are rational non-negative numbers by definition.
+--
+-- The functions provided here are the fastest implementations available for
+-- use in Haskell programs. In fact the functions are implemented in C for
+-- maximal efficiency, but this leads to a minor flaw. When we work with
+-- 'Text' values in C, they are represented as UTF-16 encoded strings of
+-- two-byte values. The algorithms treat the strings as if a character
+-- corresponds to one element in such strings, which is true for almost all
+-- modern text data. However, there are characters that are represented by
+-- two adjoined elements in UTF-16: emoji, historic scripts, less used
+-- Chinese ideographs, and some more. If input 'Text' of the functions
+-- contains such characters, the functions may return slightly incorrect
+-- result. Decide for yourself if this is acceptable for your use case, but
+-- chances are you will never run into situations when the functions produce
+-- incorrect results.
 
 {-# LANGUAGE CPP                      #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
