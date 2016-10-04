@@ -62,7 +62,7 @@ are:
   fairly heavily optimized”, which is apparently true, yet the
   `text-metrics` is faster for short strings (under 64 characters) and even
   faster for longer strings (scales better). How much faster? For short
-  strings more than ×2.5, and about ×4 for longer strings.
+  strings more than ×3, and about ×4 for longer strings.
 
 ## Implementation
 
