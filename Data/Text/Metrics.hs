@@ -37,7 +37,9 @@ module Data.Text.Metrics
   , damerauLevenshtein
   , damerauLevenshteinNorm
     -- * Other
-  , hamming )
+  , hamming
+  , jaro
+  , jaroWinkler )
 where
 
 import Data.Ratio
@@ -125,6 +127,69 @@ hamming a b =
 
 foreign import ccall unsafe "tmetrics_hamming"
   c_hamming :: CUInt -> Ptr Word16 -> Ptr Word16 -> IO CUInt
+
+-- | Return Jaro distance between two 'Text' values. Returned value is in
+-- range from 0 (no similarity) to 1 (exact match).
+--
+-- While the algorithm is pretty clear for artificial examples (like those
+-- from the linked Wikipedia article), for /arbitrary/ strings, it may be
+-- hard to decide which of two strings should be considered as one having
+-- “reference” order of characters (since order of matching characters in an
+-- essential part of the definition of the algorithm). This makes us
+-- consider the first string the “reference” string (with correct order of
+-- characters). Thus generally,
+--
+-- > jaro a b ≠ jaro b a
+--
+-- This asymmetry can be found in all implementations of the algorithm on
+-- the internet, AFAIK.
+--
+-- See also: <http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
+--
+-- @since 0.2.0
+
+jaro :: Text -> Text -> Ratio Natural
+jaro = jaroCommon (\_ _ _ _ x -> return x)
+
+jaroCommon :: (CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> Ratio Natural -> IO (Ratio Natural)) -> Text -> Text -> Ratio Natural
+jaroCommon f a b = unsafePerformIO $ alloca $ \m' -> alloca $ \t' ->
+  TF.useAsPtr a $ \aptr asize ->
+    TF.useAsPtr b $ \bptr bsize ->
+      if asize == 0 || bsize == 0
+        then return (1 % 1)
+        else do
+          let asize' = fromIntegral asize
+              bsize' = fromIntegral bsize
+          c_jaro m' t' asize' aptr bsize' bptr
+          m <- fromIntegral <$> peek m'
+          t <- fromIntegral <$> peek t'
+          f asize' aptr bsize' bptr $
+            if m == 0
+              then 0
+              else ((m % fromIntegral asize) +
+                    (m % fromIntegral bsize) +
+                    ((m - t) % m)) / 3
+{-# INLINE jaroCommon #-}
+
+foreign import ccall unsafe "tmetrics_jaro"
+  c_jaro :: Ptr CUInt -> Ptr CUInt -> CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO ()
+
+-- | Return Jaro-Winkler distance between two 'Text' values. Returned value
+-- is in range from 0 (no similarity) to 1 (exact match).
+--
+-- See also: <http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
+--
+-- @since 0.2.0
+
+jaroWinkler :: Text -> Text -> Ratio Natural
+jaroWinkler = jaroCommon g
+  where
+    g asize aptr bsize bptr dj = do
+      l <- fromIntegral <$> c_common_prefix asize aptr bsize bptr
+      return (dj + (1  % 10) * l * (1 - dj))
+
+foreign import ccall unsafe "tmetrics_common_prefix"
+  c_common_prefix :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
 
 ----------------------------------------------------------------------------
 -- Helpers

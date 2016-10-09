@@ -32,13 +32,13 @@ The current version of the package implements:
 * [Damerau-Levenshtein distance](http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance)
 * [Normalized Damerau-Levenshtein distance](http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance)
 * [Hamming distance](http://en.wikipedia.org/wiki/Hamming_distance)
+* [Jaro distance](http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
+* [Jaro-Winkler distance](http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
 
 TODO list:
 
 * [Overlap coefficient](http://en.wikipedia.org/wiki/Overlap_coefficient)
 * [Jaccard similarity coefficient](http://en.wikipedia.org/wiki/Jaccard_index)
-* [Jaro distance](http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
-* [Jaro-Winkler distance](http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
 
 ## Comparison with the `edit-distance` package
 
