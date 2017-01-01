@@ -77,6 +77,6 @@ Normalized versions are defined as thin (inlined) Haskell wrappers.
 
 ## License
 
-Copyright © 2016 Mark Karpov
+Copyright © 2016–2017 Mark Karpov
 
 Distributed under BSD 3 clause license.
