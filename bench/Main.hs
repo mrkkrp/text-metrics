@@ -48,7 +48,7 @@ main = defaultMain
   , btmetric "jaro"                   jaro
   , btmetric "jaroWinkler"            jaroWinkler ]
 
--- | Produce benchmark group to test
+-- | Produce benchmark group to test.
 
 btmetric :: NFData a => String -> (Text -> Text -> a) -> Benchmark
 btmetric name f = bgroup name (bs <$> stdSeries)
