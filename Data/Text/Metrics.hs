@@ -7,10 +7,11 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- The module provides efficient implementations of various strings metrics.
--- It works with strict 'Text' values and returns either 'Natural' numbers
--- (because the metrics cannot be negative), or @'Ratio' 'Natural'@ values
--- because returned values are rational non-negative numbers by definition.
+-- The module provides efficient implementations of various strings metric
+-- algorithms. It works with strict 'Text' values and returns either
+-- 'Natural' numbers (because the metrics cannot be negative), or @'Ratio'
+-- 'Natural'@ values because returned values are rational non-negative
+-- numbers by definition.
 --
 -- The functions provided here are the fastest implementations available for
 -- use in Haskell programs. In fact the functions are implemented in C for
@@ -59,9 +60,10 @@ import Control.Applicative
 -- Levenshtein variants
 
 -- | Return Levenshtein distance between two 'Text' values. Classic
--- Levenshtein distance between two strings is minimal number of operations
--- necessary to transform one string into another. For Levenshtein distance
--- allowed operations are: deletion, insertion, and substitution.
+-- Levenshtein distance between two strings is the minimal number of
+-- operations necessary to transform one string into another. For
+-- Levenshtein distance allowed operations are: deletion, insertion, and
+-- substitution.
 --
 -- See also: <https://en.wikipedia.org/wiki/Levenshtein_distance>.
 
@@ -111,7 +113,7 @@ damerauLevenshteinNorm = norm damerauLevenshtein
 -- Other
 
 -- | /O(n)/ Return Hamming distance between two 'Text' values. Hamming
--- distance is defined as number of positions at which the corresponding
+-- distance is defined as the number of positions at which the corresponding
 -- symbols are different. The input 'Text' values should be of equal length
 -- or 'Nothing' will be returned.
 --
@@ -129,7 +131,7 @@ foreign import ccall unsafe "tmetrics_hamming"
   c_hamming :: CUInt -> Ptr Word16 -> Ptr Word16 -> IO CUInt
 
 -- | Return Jaro distance between two 'Text' values. Returned value is in
--- range from 0 (no similarity) to 1 (exact match).
+-- the range from 0 (no similarity) to 1 (exact match).
 --
 -- While the algorithm is pretty clear for artificial examples (like those
 -- from the linked Wikipedia article), for /arbitrary/ strings, it may be

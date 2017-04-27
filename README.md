@@ -7,10 +7,10 @@
 [![Build Status](https://travis-ci.org/mrkkrp/text-metrics.svg?branch=master)](https://travis-ci.org/mrkkrp/text-metrics)
 [![Coverage Status](https://coveralls.io/repos/mrkkrp/text-metrics/badge.svg?branch=master&service=github)](https://coveralls.io/github/mrkkrp/text-metrics?branch=master)
 
-The library provides efficient implementations of various strings metrics.
-It works with strict `Text` values and returns either `Natural` numbers
-(because the metrics cannot be negative), or `Ratio Natural` values because
-returned values are rational non-negative numbers by definition.
+The library provides efficient implementations of various strings metric
+algorithms. It works with strict `Text` values and returns either `Natural`
+numbers (because the metrics cannot be negative), or `Ratio Natural` values
+because returned values are rational non-negative numbers by definition.
 
 The functions provided here are the fastest implementations available for
 use in Haskell programs. In fact the functions are implemented in C for
@@ -66,7 +66,7 @@ are:
 
 ## Implementation
 
-All “meat” of the algorithms is written in C in a rather straightforward
+All the “meat” of the algorithms is written in C in a rather straightforward
 way. Levenshtein variants are based on the “iterative algorithm with two
 matrix rows” from Wikipedia with additional improvement that we do not copy
 current row of distances into previous row, but just swap the pointers
