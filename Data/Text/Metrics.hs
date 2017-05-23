@@ -27,8 +27,10 @@
 -- chances are you will never run into situations when the functions produce
 -- incorrect results.
 
+{-# LANGUAGE BangPatterns             #-}
 {-# LANGUAGE CPP                      #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE MultiWayIf               #-}
 {-# LANGUAGE OverloadedStrings        #-}
 
 module Data.Text.Metrics
@@ -39,6 +41,7 @@ module Data.Text.Metrics
   , damerauLevenshteinNorm
     -- * Other
   , hamming
+  , hamming_
   , jaro
   , jaroWinkler )
 where
@@ -49,8 +52,9 @@ import Foreign
 import Foreign.C.Types
 import Numeric.Natural
 import System.IO.Unsafe
-import qualified Data.Text           as T
-import qualified Data.Text.Foreign   as TF
+import qualified Data.Text         as T
+import qualified Data.Text.Foreign as TF
+import qualified Data.Text.Unsafe  as TU
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
@@ -129,6 +133,20 @@ hamming a b =
 
 foreign import ccall unsafe "tmetrics_hamming"
   c_hamming :: CUInt -> Ptr Word16 -> Ptr Word16 -> IO CUInt
+
+hamming_ :: Text -> Text -> Maybe Word
+hamming_ a b =
+  if T.length a == T.length b
+    then Just (go 0 0 0)
+    else Nothing
+  where
+    go !na !nb !r =
+      let TU.Iter cha da = TU.iter a na
+          TU.Iter chb db = TU.iter b nb
+      in if | na  == len -> r
+            | cha /= chb -> go (na + da) (nb + db) (r + 1)
+            | otherwise  -> go (na + da) (nb + db) r
+    len = TU.lengthWord16 a
 
 -- | Return Jaro distance between two 'Text' values. Returned value is in
 -- the range from 0 (no similarity) to 1 (exact match).

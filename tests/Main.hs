@@ -66,6 +66,7 @@ spec = do
     testPair hamming "2173896" "2233796" (Just 3)
     testPair hamming "toned"   "roses"   (Just 3)
     testPair hamming "red"     "wax"     (Just 3)
+    testPair hamming "a😀c"    "abc"     (Just 1)
     testPair hamming "lucky"   "lucky"   (Just 0)
     testPair hamming ""        ""        (Just 0)
     testPair hamming "small"   "big"     Nothing
