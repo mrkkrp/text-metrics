@@ -146,7 +146,7 @@ foreign import ccall unsafe "tmetrics_hamming"
 -- This asymmetry can be found in all implementations of the algorithm on
 -- the internet, AFAIK.
 --
--- See also: <http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
+-- See also: <https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
 --
 -- @since 0.2.0
 
@@ -179,7 +179,7 @@ foreign import ccall unsafe "tmetrics_jaro"
 -- | Return Jaro-Winkler distance between two 'Text' values. Returned value
 -- is in range from 0 (no similarity) to 1 (exact match).
 --
--- See also: <http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
+-- See also: <https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
 --
 -- @since 0.2.0
 

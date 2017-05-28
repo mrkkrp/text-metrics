@@ -27,18 +27,18 @@ situations when the functions produce incorrect results.
 
 The current version of the package implements:
 
-* [Levenshtein distance](http://en.wikipedia.org/wiki/Levenshtein_distance)
-* [Normalized Levenshtein distance](http://en.wikipedia.org/wiki/Levenshtein_distance)
-* [Damerau-Levenshtein distance](http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance)
-* [Normalized Damerau-Levenshtein distance](http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance)
-* [Hamming distance](http://en.wikipedia.org/wiki/Hamming_distance)
-* [Jaro distance](http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
-* [Jaro-Winkler distance](http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
+* [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
+* [Normalized Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
+* [Damerau-Levenshtein distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance)
+* [Normalized Damerau-Levenshtein distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance)
+* [Hamming distance](https://en.wikipedia.org/wiki/Hamming_distance)
+* [Jaro distance](https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
+* [Jaro-Winkler distance](https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
 
 TODO list:
 
-* [Overlap coefficient](http://en.wikipedia.org/wiki/Overlap_coefficient)
-* [Jaccard similarity coefficient](http://en.wikipedia.org/wiki/Jaccard_index)
+* [Overlap coefficient](https://en.wikipedia.org/wiki/Overlap_coefficient)
+* [Jaccard similarity coefficient](https://en.wikipedia.org/wiki/Jaccard_index)
 
 ## Comparison with the `edit-distance` package
 
