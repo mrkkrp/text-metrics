@@ -14,9 +14,10 @@ main = defaultMain
   -- , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
   --   btmetric "hamming"                hamming
   -- , btmetric "hamming_"               hamming_
-    btmetric "jaro"                   jaro
-  , btmetric "jaro_"                  jaro_
-  -- , btmetric "jaroWinkler"            jaroWinkler
+  --   btmetric "jaro"                   jaro
+  -- , btmetric "jaro_"                  jaro_
+    btmetric "jaroWinkler"            jaroWinkler
+  , btmetric "jaroWinkler_"           jaroWinkler_
   ]
 
 -- | Produce benchmark group to test.

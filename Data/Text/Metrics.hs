@@ -44,7 +44,9 @@ module Data.Text.Metrics
   , hamming_
   , jaro
   , jaro_
-  , jaroWinkler )
+  , jaroWinkler
+  , jaroWinkler_
+  )
 where
 
 import Control.Monad
@@ -54,6 +56,7 @@ import Data.Text
 import Data.Word (Word8)
 import Foreign
 import Foreign.C.Types
+import GHC.Exts (inline)
 import Numeric.Natural
 import System.IO.Unsafe
 import qualified Data.Text                   as T
@@ -264,6 +267,25 @@ jaroWinkler = jaroCommon g
 
 foreign import ccall unsafe "tmetrics_common_prefix"
   c_common_prefix :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
+
+jaroWinkler_ :: Text -> Text -> Ratio Word
+jaroWinkler_ a b = dj + (1 % 10) * l * (1 - dj)
+  where
+    dj = inline (jaro_ a b)
+    l  = (fromIntegral . inline) (commonPrefix a b)
+
+commonPrefix :: Text -> Text -> Word
+commonPrefix a b = go 0 0 0
+  where
+    go !na !nb !r =
+      let TU.Iter cha da = TU.iter a na
+          TU.Iter chb db = TU.iter b nb
+      in if | na == lena -> r
+            | nb == lenb -> r
+            | cha == chb -> go (na + da) (nb + db) (r + 1)
+            | otherwise  -> r
+    lena = TU.lengthWord16 a
+    lenb = TU.lengthWord16 b
 
 ----------------------------------------------------------------------------
 -- Helpers
