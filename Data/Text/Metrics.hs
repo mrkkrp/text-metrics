@@ -43,18 +43,23 @@ module Data.Text.Metrics
   , hamming
   , hamming_
   , jaro
+  , jaro_
   , jaroWinkler )
 where
 
+import Control.Monad
+import Control.Monad.ST
 import Data.Ratio
 import Data.Text
+import Data.Word (Word8)
 import Foreign
 import Foreign.C.Types
 import Numeric.Natural
 import System.IO.Unsafe
-import qualified Data.Text         as T
-import qualified Data.Text.Foreign as TF
-import qualified Data.Text.Unsafe  as TU
+import qualified Data.Text                   as T
+import qualified Data.Text.Foreign           as TF
+import qualified Data.Text.Unsafe            as TU
+import qualified Data.Vector.Unboxed.Mutable as VUM
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
@@ -171,12 +176,55 @@ hamming_ a b =
 jaro :: Text -> Text -> Ratio Natural
 jaro = jaroCommon (\_ _ _ _ x -> return x)
 
+jaro_ :: Text -> Text -> Ratio Word
+jaro_ a b =
+  if T.null a || T.null b
+    then 0 % 1
+    else runST $ do
+      let lena = T.length a
+          lenb = T.length b
+          d =
+            if lena >= 2 && lenb >= 2
+              then max lena lenb `quot` 2 - 1
+              else 0
+      v  <- VUM.replicate lenb (0 :: Word8)
+      r <- VUM.replicate 3 (0 :: Word) -- tj, m, t
+      let goi !i !na = do
+            let TU.Iter ai da = TU.iter a na
+                from = if i < d then 0 else i - d
+                to   = min (i + d + 1) lenb
+                goj !j !nb =
+                  when (j < to) $ do
+                    let TU.Iter bj db = TU.iter b nb
+                    used <- (== 1) <$> VUM.unsafeRead v j
+                    if used
+                      then goj (j + 1) (nb + db)
+                      else
+                        if ai == bj
+                          then do
+                            tj <- fromIntegral <$> VUM.unsafeRead r 0
+                            if j < tj
+                              then VUM.unsafeModify r (+ 1) 2
+                              else VUM.unsafeWrite  r 0 (fromIntegral j)
+                            VUM.unsafeWrite v j 1
+                            VUM.unsafeModify r (+ 1) 1
+                          else goj (j + 1) (nb + db)
+            when (i < lena) $ do
+              goj from 0 -- FIXME
+              goi (i + 1) (na + da)
+      goi 0 0
+      m <- VUM.unsafeRead r 1
+      t <- VUM.unsafeRead r 2
+      return (((m % fromIntegral lena) +
+              (m % fromIntegral lenb) +
+              ((m - t) % m)) / 3)
+
 jaroCommon :: (CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> Ratio Natural -> IO (Ratio Natural)) -> Text -> Text -> Ratio Natural
 jaroCommon f a b = unsafePerformIO $ alloca $ \m' -> alloca $ \t' ->
   TF.useAsPtr a $ \aptr asize ->
     TF.useAsPtr b $ \bptr bsize ->
       if asize == 0 || bsize == 0
-        then return (1 % 1)
+        then return (0 % 1)
         else do
           let asize' = fromIntegral asize
               bsize' = fromIntegral bsize

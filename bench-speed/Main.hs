@@ -12,9 +12,10 @@ main = defaultMain
   -- , btmetric "levenshteinNorm"        levenshteinNorm
   -- , btmetric "damerauLevenshtein"     damerauLevenshtein
   -- , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
-    btmetric "hamming"                hamming
-  , btmetric "hamming_"               hamming_
-  -- , btmetric "jaro"                   jaro
+  --   btmetric "hamming"                hamming
+  -- , btmetric "hamming_"               hamming_
+    btmetric "jaro"                   jaro
+  , btmetric "jaro_"                  jaro_
   -- , btmetric "jaroWinkler"            jaroWinkler
   ]
 

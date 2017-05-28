@@ -86,7 +86,7 @@ spec = do
     testPair jaro "five"   "ten"      (0  % 1)
     testPair jaro "ten"    "five"     (0  % 1)
     testPair jaro "lucky"  "lucky"    (1  % 1)
-    testPair jaro ""       ""         (1  % 1)
+    testPair jaro ""       ""         (0  % 1)
   describe "jaroWinkler" $ do
     testPair jaroWinkler "aa" "a"            (17 % 20)
     testPair jaroWinkler "a"  "aa"           (17 % 20)
@@ -103,7 +103,7 @@ spec = do
     testPair jaroWinkler "five"   "ten"      (0  % 1)
     testPair jaroWinkler "ten"    "five"     (0  % 1)
     testPair jaroWinkler "lucky"  "lucky"    (1  % 1)
-    testPair jaroWinkler ""       ""         (1  % 1)
+    testPair jaroWinkler ""       ""         (0  % 1)
 
 -- | Test that given function returns the same results when order of
 -- arguments is swapped.

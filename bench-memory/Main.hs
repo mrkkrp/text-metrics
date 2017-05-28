@@ -14,9 +14,10 @@ main = mainWith $ do
   -- bmetric "levenshteinNorm"        levenshteinNorm
   -- bmetric "damerauLevenshtein"     damerauLevenshtein
   -- bmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
-  bmetric "hamming"                hamming
-  bmetric "hamming_"               hamming_
-  -- bmetric "jaro"                   jaro
+  -- bmetric "hamming"                hamming
+  -- bmetric "hamming_"               hamming_
+  bmetric "jaro"                   jaro
+  bmetric "jaro_"                  jaro_
   -- bmetric "jaroWinkler"            jaroWinkler
 
 -- | Perform a series to measurements with the same metric function.
