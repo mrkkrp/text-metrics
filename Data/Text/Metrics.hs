@@ -187,12 +187,15 @@ jaro_ a b =
             if lena >= 2 && lenb >= 2
               then max lena lenb `quot` 2 - 1
               else 0
-      v  <- VUM.replicate lenb (0 :: Word8)
+      v <- VUM.replicate lenb (0 :: Word8)
       r <- VUM.replicate 3 (0 :: Word) -- tj, m, t
-      let goi !i !na = do
+      let goi !i !na !fromb = do
             let TU.Iter ai da = TU.iter a na
-                from = if i < d then 0 else i - d
-                to   = min (i + d + 1) lenb
+                (from, fromb') =
+                  if i >= d
+                    then (i - d, fromb + TU.iter_ b fromb)
+                    else (0, 0)
+                to = min (i + d + 1) lenb
                 goj !j !nb =
                   when (j < to) $ do
                     let TU.Iter bj db = TU.iter b nb
@@ -210,14 +213,17 @@ jaro_ a b =
                             VUM.unsafeModify r (+ 1) 1
                           else goj (j + 1) (nb + db)
             when (i < lena) $ do
-              goj from 0 -- FIXME
-              goi (i + 1) (na + da)
-      goi 0 0
+              goj from fromb
+              goi (i + 1) (na + da) fromb'
+      goi 0 0 0
       m <- VUM.unsafeRead r 1
       t <- VUM.unsafeRead r 2
-      return (((m % fromIntegral lena) +
-              (m % fromIntegral lenb) +
-              ((m - t) % m)) / 3)
+      return $
+        if m == 0
+          then 0 % 1
+          else ((m % fromIntegral lena) +
+                (m % fromIntegral lenb) +
+                ((m - t) % m)) / 3
 
 jaroCommon :: (CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> Ratio Natural -> IO (Ratio Natural)) -> Text -> Text -> Ratio Natural
 jaroCommon f a b = unsafePerformIO $ alloca $ \m' -> alloca $ \t' ->
