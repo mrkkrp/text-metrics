@@ -203,18 +203,15 @@ jaro_ a b =
                   when (j < to) $ do
                     let TU.Iter bj db = TU.iter b nb
                     used <- (== 1) <$> VUM.unsafeRead v j
-                    if used
-                      then goj (j + 1) (nb + db)
-                      else
-                        if ai == bj
-                          then do
-                            tj <- fromIntegral <$> VUM.unsafeRead r 0
-                            if j < tj
-                              then VUM.unsafeModify r (+ 1) 2
-                              else VUM.unsafeWrite  r 0 (fromIntegral j)
-                            VUM.unsafeWrite v j 1
-                            VUM.unsafeModify r (+ 1) 1
-                          else goj (j + 1) (nb + db)
+                    if not used && ai == bj
+                      then do
+                        tj <- fromIntegral <$> VUM.unsafeRead r 0
+                        if j < tj
+                          then VUM.unsafeModify r (+ 1) 2
+                          else VUM.unsafeWrite  r 0 (fromIntegral j)
+                        VUM.unsafeWrite v j 1
+                        VUM.unsafeModify r (+ 1) 1
+                      else goj (j + 1) (nb + db)
             when (i < lena) $ do
               goj from fromb
               goi (i + 1) (na + da) fromb'
