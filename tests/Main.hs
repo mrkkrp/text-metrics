@@ -24,14 +24,14 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "levenshtein" $ do
-    testSwap levenshtein
+    testSwap levenshtein_
     context "with concrete examples" $ do
-      testPair levenshtein "kitten"   "sitting" 3
-      testPair levenshtein "cake"     "drake"   2
-      testPair levenshtein "saturday" "sunday"  3
-      testPair levenshtein "red"      "wax"     3
-      testPair levenshtein "lucky"    "lucky"   0
-      testPair levenshtein ""         ""        0
+      testPair levenshtein_ "kitten"   "sitting" 3
+      testPair levenshtein_ "cake"     "drake"   2
+      testPair levenshtein_ "saturday" "sunday"  3
+      testPair levenshtein_ "red"      "wax"     3
+      testPair levenshtein_ "lucky"    "lucky"   0
+      testPair levenshtein_ ""         ""        0
   describe "levenshteinNorm" $ do
     testSwap levenshteinNorm
     testPair levenshteinNorm "kitten"   "sitting" (4 % 7)

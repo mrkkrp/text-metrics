@@ -10,7 +10,8 @@ import qualified Data.Text as T
 main :: IO ()
 main = mainWith $ do
   setColumns [Case, Allocated, GCs, Max]
-  -- bmetric "levenshtein"            levenshtein
+  bmetric "levenshtein"            levenshtein
+  bmetric "levenshtein_"           levenshtein_
   -- bmetric "levenshteinNorm"        levenshteinNorm
   -- bmetric "damerauLevenshtein"     damerauLevenshtein
   -- bmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
@@ -18,8 +19,8 @@ main = mainWith $ do
   -- bmetric "hamming_"               hamming_
   -- bmetric "jaro"                   jaro
   -- bmetric "jaro_"                  jaro_
-  bmetric "jaroWinkler"            jaroWinkler
-  bmetric "jaroWinkler_"           jaroWinkler_
+  -- bmetric "jaroWinkler"            jaroWinkler
+  -- bmetric "jaroWinkler_"           jaroWinkler_
 
 -- | Perform a series to measurements with the same metric function.
 

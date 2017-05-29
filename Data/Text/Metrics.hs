@@ -36,6 +36,7 @@
 module Data.Text.Metrics
   ( -- * Levenshtein variants
     levenshtein
+  , levenshtein_
   , levenshteinNorm
   , damerauLevenshtein
   , damerauLevenshteinNorm
@@ -84,6 +85,40 @@ levenshtein = withTwo c_levenshtein
 
 foreign import ccall unsafe "tmetrics_levenshtein"
   c_levenshtein :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
+
+levenshtein_ :: Text -> Text -> Word
+levenshtein_ a b
+  | T.null a = fromIntegral lenb
+  | T.null b = fromIntegral lena
+  | otherwise = runST $ do
+      let v_len = lenb + 1
+      v <- VUM.unsafeNew (v_len * 2)
+      let gov !i =
+            when (i < v_len) $ do
+              VUM.unsafeWrite v i i
+              gov (i + 1)
+          goi !i !na !v0 !v1 = do
+            let TU.Iter ai da = TU.iter a na
+                goj !j !nb =
+                  when (j < lenb) $ do
+                    let TU.Iter bj db = TU.iter b nb
+                        cost = if ai == bj then 0 else 1
+                    x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
+                    y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
+                    z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
+                    VUM.unsafeWrite v (v1 + j + 1) (min x (min y z))
+                    goj (j + 1) (nb + db)
+            when (i < lena) $ do
+              VUM.unsafeWrite v v1 (i + 1)
+              goj 0 0
+              goi (i + 1) (na + da) v1 v0
+      gov 0
+      goi 0 0 0 v_len
+      fromIntegral <$> VUM.unsafeRead v
+        (lenb + if even lena then 0 else v_len)
+  where
+    lena = T.length a
+    lenb = T.length b
 
 -- | Return normalized Levenshtein distance between two 'Text' values.
 -- Result is a non-negative rational number (represented as @'Ratio'

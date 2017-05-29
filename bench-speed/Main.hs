@@ -8,7 +8,8 @@ import qualified Data.Text as T
 
 main :: IO ()
 main = defaultMain
-  [ -- btmetric "levenshtein"            levenshtein
+  [ btmetric "levenshtein"            levenshtein
+  , btmetric "levenshtein_"           levenshtein_
   -- , btmetric "levenshteinNorm"        levenshteinNorm
   -- , btmetric "damerauLevenshtein"     damerauLevenshtein
   -- , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
@@ -16,8 +17,8 @@ main = defaultMain
   -- , btmetric "hamming_"               hamming_
   --   btmetric "jaro"                   jaro
   -- , btmetric "jaro_"                  jaro_
-    btmetric "jaroWinkler"            jaroWinkler
-  , btmetric "jaroWinkler_"           jaroWinkler_
+  --   btmetric "jaroWinkler"            jaroWinkler
+  -- , btmetric "jaroWinkler_"           jaroWinkler_
   ]
 
 -- | Produce benchmark group to test.
