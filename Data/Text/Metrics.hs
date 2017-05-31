@@ -86,10 +86,10 @@ levenshtein = withTwo c_levenshtein
 foreign import ccall unsafe "tmetrics_levenshtein"
   c_levenshtein :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
 
-levenshtein_ :: Text -> Text -> Word
+levenshtein_ :: Text -> Text -> Int
 levenshtein_ a b
-  | T.null a = fromIntegral lenb
-  | T.null b = fromIntegral lena
+  | T.null a = lenb
+  | T.null b = lena
   | otherwise = runST $ do
       let v_len = lenb + 1
       v <- VUM.unsafeNew (v_len * 2)
@@ -114,8 +114,7 @@ levenshtein_ a b
               goi (i + 1) (na + da) v1 v0
       gov 0
       goi 0 0 0 v_len
-      fromIntegral <$> VUM.unsafeRead v
-        (lenb + if even lena then 0 else v_len)
+      VUM.unsafeRead v (lenb + if even lena then 0 else v_len)
   where
     lena = T.length a
     lenb = T.length b
@@ -177,7 +176,7 @@ hamming a b =
 foreign import ccall unsafe "tmetrics_hamming"
   c_hamming :: CUInt -> Ptr Word16 -> Ptr Word16 -> IO CUInt
 
-hamming_ :: Text -> Text -> Maybe Word
+hamming_ :: Text -> Text -> Maybe Int
 hamming_ a b =
   if T.length a == T.length b
     then Just (go 0 0 0)
@@ -214,7 +213,7 @@ hamming_ a b =
 jaro :: Text -> Text -> Ratio Natural
 jaro = jaroCommon (\_ _ _ _ x -> return x)
 
-jaro_ :: Text -> Text -> Ratio Word
+jaro_ :: Text -> Text -> Ratio Int
 jaro_ a b =
   if T.null a || T.null b
     then 0 % 1
@@ -226,7 +225,7 @@ jaro_ a b =
               then max lena lenb `quot` 2 - 1
               else 0
       v <- VUM.replicate lenb (0 :: Word8)
-      r <- VUM.replicate 3 (0 :: Word) -- tj, m, t
+      r <- VUM.replicate 3 (0 :: Int) -- tj, m, t
       let goi !i !na !fromb = do
             let TU.Iter ai da = TU.iter a na
                 (from, fromb') =
@@ -240,10 +239,10 @@ jaro_ a b =
                     used <- (== 1) <$> VUM.unsafeRead v j
                     if not used && ai == bj
                       then do
-                        tj <- fromIntegral <$> VUM.unsafeRead r 0
+                        tj <- VUM.unsafeRead r 0
                         if j < tj
                           then VUM.unsafeModify r (+ 1) 2
-                          else VUM.unsafeWrite  r 0 (fromIntegral j)
+                          else VUM.unsafeWrite  r 0 j
                         VUM.unsafeWrite v j 1
                         VUM.unsafeModify r (+ 1) 1
                       else goj (j + 1) (nb + db)
@@ -256,8 +255,8 @@ jaro_ a b =
       return $
         if m == 0
           then 0 % 1
-          else ((m % fromIntegral lena) +
-                (m % fromIntegral lenb) +
+          else ((m % lena) +
+                (m % lenb) +
                 ((m - t) % m)) / 3
 
 jaroCommon :: (CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> Ratio Natural -> IO (Ratio Natural)) -> Text -> Text -> Ratio Natural
@@ -300,7 +299,7 @@ jaroWinkler = jaroCommon g
 foreign import ccall unsafe "tmetrics_common_prefix"
   c_common_prefix :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
 
-jaroWinkler_ :: Text -> Text -> Ratio Word
+jaroWinkler_ :: Text -> Text -> Ratio Int
 jaroWinkler_ a b = dj + (1 % 10) * l * (1 - dj)
   where
     dj = inline (jaro_ a b)
