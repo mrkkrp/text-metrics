@@ -9,13 +9,12 @@ import qualified Data.Text as T
 main :: IO ()
 main = defaultMain
   [ btmetric "levenshtein"            levenshtein
-  -- , btmetric "levenshteinNorm"        levenshteinNorm
+  , btmetric "levenshteinNorm"        levenshteinNorm
   , btmetric "damerauLevenshtein"     damerauLevenshtein
-  -- , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
-  -- , btmetric "hamming (Haskell)"      hamming
-  -- , btmetric "jaro"                   jaro
-  -- , btmetric "jaroWinkler"            jaroWinkler
-  ]
+  , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
+  , btmetric "hamming (Haskell)"      hamming
+  , btmetric "jaro"                   jaro
+  , btmetric "jaroWinkler"            jaroWinkler ]
 
 -- | Produce benchmark group to test.
 
