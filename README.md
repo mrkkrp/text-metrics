@@ -43,12 +43,6 @@ are:
 * `edit-distance` works on `Strings`, while `text-metrics` works on strict
   `Text` values.
 
-* As `README.md` of `edit-distance` states, “[the algorithms] have been
-  fairly heavily optimized”, which is apparently true, yet the
-  `text-metrics` is faster for short strings (under 64 characters) and even
-  faster for longer strings (scales better). How much faster? For short
-  strings more than ×3, and about ×4 for longer strings.
-
 ## Implementation
 
 Although we originally used C for speed, currently all functions are pure
