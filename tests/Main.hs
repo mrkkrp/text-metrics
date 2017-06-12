@@ -30,7 +30,9 @@ spec = do
       testPair levenshtein "cake"     "drake"   2
       testPair levenshtein "saturday" "sunday"  3
       testPair levenshtein "red"      "wax"     3
+#if __GLASGOW_HASKELL__ >= 710
       testPair levenshtein "a😀c"     "abc"     1
+#endif
       testPair levenshtein "lucky"    "lucky"   0
       testPair levenshtein ""         ""        0
   describe "levenshteinNorm" $ do
@@ -39,7 +41,9 @@ spec = do
     testPair levenshteinNorm "cake"     "drake"   (3 % 5)
     testPair levenshteinNorm "saturday" "sunday"  (5 % 8)
     testPair levenshteinNorm "red"      "wax"     (0 % 1)
+#if __GLASGOW_HASKELL__ >= 710
     testPair levenshteinNorm "a😀c"     "abc"     (2 % 3)
+#endif
     testPair levenshteinNorm "lucky"    "lucky"   (1 % 1)
     testPair levenshteinNorm ""         ""        (1 % 1)
   describe "damerauLevenshtein" $ do
@@ -49,7 +53,9 @@ spec = do
     testPair damerauLevenshtein "nose"          "ones"      2
     testPair damerauLevenshtein "thing"         "sign"      3
     testPair damerauLevenshtein "red"           "wax"       3
+#if __GLASGOW_HASKELL__ >= 710
     testPair damerauLevenshtein "a😀c"          "abc"       1
+#endif
     testPair damerauLevenshtein "lucky"         "lucky"     0
     testPair damerauLevenshtein ""              ""          0
   describe "damerauLevenshteinNorm" $ do
@@ -59,7 +65,9 @@ spec = do
     testPair damerauLevenshteinNorm "nose"          "ones"      (1 % 2)
     testPair damerauLevenshteinNorm "thing"         "sign"      (2 % 5)
     testPair damerauLevenshteinNorm "red"           "wax"       (0 % 1)
+#if __GLASGOW_HASKELL__ >= 710
     testPair damerauLevenshteinNorm "a😀c"          "abc"       (2 % 3)
+#endif
     testPair damerauLevenshteinNorm "lucky"         "lucky"     (1 % 1)
     testPair damerauLevenshteinNorm ""              ""          (1 % 1)
   describe "hamming" $ do
@@ -70,7 +78,9 @@ spec = do
     testPair hamming "2173896" "2233796" (Just 3)
     testPair hamming "toned"   "roses"   (Just 3)
     testPair hamming "red"     "wax"     (Just 3)
+#if __GLASGOW_HASKELL__ >= 710
     testPair hamming "a😀c"    "abc"      (Just 1)
+#endif
     testPair hamming "lucky"   "lucky"   (Just 0)
     testPair hamming ""        ""        (Just 0)
     testPair hamming "small"   "big"     Nothing
@@ -90,7 +100,9 @@ spec = do
     testPair jaro "five"   "ten"      (0  % 1)
     testPair jaro "ten"    "five"     (0  % 1)
     testPair jaro "lucky"  "lucky"    (1  % 1)
+#if __GLASGOW_HASKELL__ >= 710
     testPair jaro "a😀c"   "abc"      (7  % 9)
+#endif
     testPair jaro ""       ""         (0  % 1)
   describe "jaroWinkler" $ do
     testPair jaroWinkler "aa" "a"            (17 % 20)
@@ -108,7 +120,9 @@ spec = do
     testPair jaroWinkler "five"   "ten"      (0  % 1)
     testPair jaroWinkler "ten"    "five"     (0  % 1)
     testPair jaroWinkler "lucky"  "lucky"    (1  % 1)
+#if __GLASGOW_HASKELL__ >= 710
     testPair jaroWinkler "a😀c"   "abc"      (4  % 5)
+#endif
     testPair jaroWinkler ""       ""         (0  % 1)
 
 -- | Test that given function returns the same results when order of
