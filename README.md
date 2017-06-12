@@ -52,7 +52,7 @@ are:
 ## Implementation
 
 Although we originally used C for speed, currently all functions are pure
-Haskell tuned for performance. See th[is blog post](https://markkarpov.com/post/migrating-text-metrics.html) for more info.
+Haskell tuned for performance. See [this blog post](https://markkarpov.com/post/migrating-text-metrics.html) for more info.
 
 ## License
 
