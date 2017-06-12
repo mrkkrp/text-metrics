@@ -8,22 +8,7 @@
 [![Coverage Status](https://coveralls.io/repos/mrkkrp/text-metrics/badge.svg?branch=master&service=github)](https://coveralls.io/github/mrkkrp/text-metrics?branch=master)
 
 The library provides efficient implementations of various strings metric
-algorithms. It works with strict `Text` values and returns either `Natural`
-numbers (because the metrics cannot be negative), or `Ratio Natural` values
-because returned values are rational non-negative numbers by definition.
-
-The functions provided here are the fastest implementations available for
-use in Haskell programs. In fact the functions are implemented in C for
-maximal efficiency, but this leads to a minor flaw. When we work with `Text`
-values in C, they are represented as UTF-16 encoded strings of two-byte
-values. The algorithms treat the strings as if a character corresponds to
-one element in such strings, which is true for almost all modern text data.
-However, there are characters that are represented by two adjoined elements
-in UTF-16: emoji, historic scripts, less used Chinese ideographs, and some
-more. If input `Text` of the functions contains such characters, the
-functions may return slightly incorrect result. Decide for yourself if this
-is acceptable for your use case, but chances are you will never run into
-situations when the functions produce incorrect results.
+algorithms. It works with strict `Text` values.
 
 The current version of the package implements:
 
@@ -52,8 +37,8 @@ are:
   transposition). This is rarely needed though in real-world applications,
   IMO.
 
-* `edit-distance` only provides single Levenshtein distance, `text-metrics`
-  aims to provide implementations of most string metrics algorithms.
+* `edit-distance` only provides Levenshtein distance, `text-metrics` aims to
+  provide implementations of most string metrics algorithms.
 
 * `edit-distance` works on `Strings`, while `text-metrics` works on strict
   `Text` values.
@@ -66,14 +51,8 @@ are:
 
 ## Implementation
 
-All the “meat” of the algorithms is written in C in a rather straightforward
-way. Levenshtein variants are based on the “iterative algorithm with two
-matrix rows” from Wikipedia with additional improvement that we do not copy
-current row of distances into previous row, but just swap the pointers
-(which is OK, since the arrays have equal length and current row will be
-overwritten in the next iteration anyway).
-
-Normalized versions are defined as thin (inlined) Haskell wrappers.
+Although we originally used C for speed, currently all functions are pure
+Haskell tuned for performance. See th[is blog post](https://markkarpov.com/post/migrating-text-metrics.html) for more info.
 
 ## License
 
