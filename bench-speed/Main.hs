@@ -12,7 +12,7 @@ main = defaultMain
   , btmetric "levenshteinNorm"        levenshteinNorm
   , btmetric "damerauLevenshtein"     damerauLevenshtein
   , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
-  , btmetric "hamming (Haskell)"      hamming
+  , btmetric "hamming"                hamming
   , btmetric "jaro"                   jaro
   , btmetric "jaroWinkler"            jaroWinkler ]
 
