@@ -36,7 +36,6 @@ import Control.Monad
 import Control.Monad.ST
 import Data.Ratio
 import Data.Text
-import Data.Word (Word8)
 import GHC.Exts (inline)
 import qualified Data.Text                   as T
 import qualified Data.Text.Unsafe            as TU
@@ -246,7 +245,7 @@ jaro a b =
             if lena >= 2 && lenb >= 2
               then max lena lenb `quot` 2 - 1
               else 0
-      v <- VUM.replicate lenb (0 :: Word8)
+      v <- VUM.replicate lenb (0 :: Int)
       r <- VUM.replicate 3 (0 :: Int) -- tj, m, t
       let goi !i !na !fromb = do
             let !(TU.Iter ai da) = TU.iter a na
