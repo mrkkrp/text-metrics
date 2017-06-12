@@ -155,9 +155,9 @@ damerauLevenshtein_ a b
             when (i < v_len) $ do
               VUM.unsafeWrite v i i
               gov (i + 1)
-          goi !i !na !v0 !v1 !v2 = do
+          goi !i !na !old_da !v0 !v1 !v2 = do
             let !(TU.Iter ai da) = TU.iter a na
-                goj !j !nb =
+                goj !j !nb !old_db =
                   when (j < lenb) $ do
                     let !(TU.Iter bj db) = TU.iter b nb
                         cost = if ai == bj then 0 else 1
@@ -165,23 +165,20 @@ damerauLevenshtein_ a b
                     y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
                     z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
                     let g = min x (min y z)
-                    VUM.unsafeWrite v (v1 + j + 1) g
                     val <- (+ cost) <$> VUM.unsafeRead v (v2 + j - 1)
-                    let !(TU.Iter ai_1 _) = TU.iter a (na - da) -- ???
-                        !(TU.Iter bj_1 _) = TU.iter b (nb - db)
-                    when (i > 0      &&
-                          j > 0      &&
-                          ai == bj_1 &&
-                          ai_1 == bj &&
-                          val < g) $
-                      VUM.unsafeWrite v (v1 + j + 1) val
-                    goj (j + 1) (nb + db)
+                    let !(TU.Iter ai_1 _) = TU.iter a (na - old_da)
+                        !(TU.Iter bj_1 _) = TU.iter b (nb - old_db)
+                    VUM.unsafeWrite v (v1 + j + 1) $
+                      if i > 0 && j > 0 && ai == bj_1 && ai_1 == bj
+                        then min val g
+                        else g
+                    goj (j + 1) (nb + db) db
             when (i < lena) $ do
               VUM.unsafeWrite v v1 (i + 1)
-              goj 0 0
-              goi (i + 1) (na + da) v1 v2 v0
+              goj 0 0 0
+              goi (i + 1) (na + da) da v1 v2 v0
       gov 0
-      goi 0 0 0 v_len (v_len * 2)
+      goi 0 0 0 0 v_len (v_len * 2)
       ld <- VUM.unsafeRead v (lenb + (lena `mod` 3) * v_len)
       return (ld, lenm)
   where

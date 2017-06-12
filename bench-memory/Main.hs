@@ -11,16 +11,12 @@ main :: IO ()
 main = mainWith $ do
   setColumns [Case, Allocated, GCs, Max]
   bmetric "levenshtein"            levenshtein
-  bmetric "levenshtein_"           levenshtein_
-  -- bmetric "levenshteinNorm"        levenshteinNorm
-  -- bmetric "damerauLevenshtein"     damerauLevenshtein
-  -- bmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
-  -- bmetric "hamming"                hamming
-  -- bmetric "hamming_"               hamming_
-  -- bmetric "jaro"                   jaro
-  -- bmetric "jaro_"                  jaro_
-  -- bmetric "jaroWinkler"            jaroWinkler
-  -- bmetric "jaroWinkler_"           jaroWinkler_
+  bmetric "levenshteinNorm"        levenshteinNorm
+  bmetric "damerauLevenshtein"     damerauLevenshtein
+  bmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
+  bmetric "hamming"                hamming
+  bmetric "jaro"                   jaro
+  bmetric "jaroWinkler"            jaroWinkler
 
 -- | Perform a series to measurements with the same metric function.
 
