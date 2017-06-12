@@ -8,46 +8,28 @@
 -- Portability :  portable
 --
 -- The module provides efficient implementations of various strings metric
--- algorithms. It works with strict 'Text' values and returns either
--- 'Natural' numbers (because the metrics cannot be negative), or @'Ratio'
--- 'Natural'@ values because returned values are rational non-negative
--- numbers by definition.
+-- algorithms. It works with strict 'Text' values.
 --
--- The functions provided here are the fastest implementations available for
--- use in Haskell programs. In fact the functions are implemented in C for
--- maximal efficiency, but this leads to a minor flaw. When we work with
--- 'Text' values in C, they are represented as UTF-16 encoded strings of
--- two-byte values. The algorithms treat the strings as if a character
--- corresponds to one element in such strings, which is true for almost all
--- modern text data. However, there are characters that are represented by
--- two adjoined elements in UTF-16: emoji, historic scripts, less used
--- Chinese ideographs, and some more. If input 'Text' of the functions
--- contains such characters, the functions may return slightly incorrect
--- result. Decide for yourself if this is acceptable for your use case, but
--- chances are you will never run into situations when the functions produce
--- incorrect results.
+-- __Note__: before version /0.3.0/ the package used C implementations of
+-- the algorithms under the hood. Beginning from version /0.3.0/, the
+-- implementations are written in Haskell while staying almost as fast, see:
+--
+-- <https://markkarpov.com/post/migrating-text-metrics.html>
 
-{-# LANGUAGE BangPatterns             #-}
-{-# LANGUAGE CPP                      #-}
-{-# LANGUAGE ForeignFunctionInterface #-}
-{-# LANGUAGE MultiWayIf               #-}
-{-# LANGUAGE OverloadedStrings        #-}
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE CPP          #-}
+{-# LANGUAGE MultiWayIf   #-}
 
 module Data.Text.Metrics
   ( -- * Levenshtein variants
     levenshtein
-  , levenshtein_
   , levenshteinNorm
   , damerauLevenshtein
   , damerauLevenshteinNorm
     -- * Other
   , hamming
-  , hamming_
   , jaro
-  , jaro_
-  , jaroWinkler
-  , jaroWinkler_
-  )
+  , jaroWinkler )
 where
 
 import Control.Monad
@@ -55,13 +37,8 @@ import Control.Monad.ST
 import Data.Ratio
 import Data.Text
 import Data.Word (Word8)
-import Foreign
-import Foreign.C.Types
 import GHC.Exts (inline)
-import Numeric.Natural
-import System.IO.Unsafe
 import qualified Data.Text                   as T
-import qualified Data.Text.Foreign           as TF
 import qualified Data.Text.Unsafe            as TU
 import qualified Data.Vector.Unboxed.Mutable as VUM
 
@@ -79,17 +56,34 @@ import Control.Applicative
 -- substitution.
 --
 -- See also: <https://en.wikipedia.org/wiki/Levenshtein_distance>.
+--
+-- __Heads up__, before version /0.3.0/ this function returned
+-- 'Data.Numeric.Natural'.
 
-levenshtein :: Text -> Text -> Natural
-levenshtein = withTwo c_levenshtein
+levenshtein :: Text -> Text -> Int
+levenshtein a b = fst (levenshtein_ a b)
 
-foreign import ccall unsafe "tmetrics_levenshtein"
-  c_levenshtein :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
+-- | Return normalized Levenshtein distance between two 'Text' values.
+-- Result is a non-negative rational number (represented as @'Ratio'
+-- 'Data.Numeric.Natural'@), where 0 signifies no similarity between the
+-- strings, while 1 means exact match.
+--
+-- See also: <https://en.wikipedia.org/wiki/Levenshtein_distance>.
+--
+-- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
+-- 'Data.Numeric.Natural'@.
 
-levenshtein_ :: Text -> Text -> Int
+levenshteinNorm :: Text -> Text -> Ratio Int
+levenshteinNorm = norm levenshtein_
+
+-- | An internal helper, returns Levenshtein distance as the first element
+-- of the tuple and max length of the two inputs as the second element of
+-- the tuple.
+
+levenshtein_ :: Text -> Text -> (Int, Int)
 levenshtein_ a b
-  | T.null a = lenb
-  | T.null b = lena
+  | T.null a = (lenb, lenm)
+  | T.null b = (lena, lenm)
   | otherwise = runST $ do
       let v_len = lenb + 1
       v <- VUM.unsafeNew (v_len * 2)
@@ -114,46 +108,45 @@ levenshtein_ a b
               goi (i + 1) (na + da) v1 v0
       gov 0
       goi 0 0 0 v_len
-      VUM.unsafeRead v (lenb + if even lena then 0 else v_len)
+      ld <- VUM.unsafeRead v (lenb + if even lena then 0 else v_len)
+      return (ld, lenm)
   where
     lena = T.length a
     lenb = T.length b
-
--- | Return normalized Levenshtein distance between two 'Text' values.
--- Result is a non-negative rational number (represented as @'Ratio'
--- 'Natural'@), where 0 signifies no similarity between the strings, while 1
--- means exact match. The operation is virtually as fast as 'levenshtein'.
---
--- See also: <https://en.wikipedia.org/wiki/Levenshtein_distance>.
-
-levenshteinNorm :: Text -> Text -> Ratio Natural
-levenshteinNorm = norm levenshtein
-{-# INLINE levenshteinNorm #-}
+    lenm = max lena lenb
+{-# INLINE levenshtein_ #-}
 
 -- | Return Damerau-Levenshtein distance between two 'Text' values. The
 -- function works like 'levenshtein', but the collection of allowed
--- operations also includes transposition of two /adjacent/ characters. The
--- function is about 20% slower than 'levenshtein', but still pretty fast.
+-- operations also includes transposition of two /adjacent/ characters.
 --
 -- See also: <https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>.
+--
+-- __Heads up__, before version /0.3.0/ this function returned
+-- 'Data.Numeric.Natural'.
 
-damerauLevenshtein :: Text -> Text -> Natural
-damerauLevenshtein = withTwo c_damerau_levenshtein
-
-foreign import ccall unsafe "tmetrics_damerau_levenshtein"
-  c_damerau_levenshtein :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
+damerauLevenshtein :: Text -> Text -> Int
+damerauLevenshtein a b = fst (damerauLevenshtein_ a b)
 
 -- | Return normalized Damerau-Levenshtein distance between two 'Text'
--- values. Result is a non-negative rational number (represented as @'Ratio'
--- 'Natural'@), where 0 signifies no similarity between the strings, while 1
--- means exact match. The operation is virtually as fast as
--- 'damerauLevenshtein'.
+-- values. 0 signifies no similarity between the strings, while 1 means
+-- exact match.
 --
 -- See also: <https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>.
+--
+-- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
+-- 'Data.Numeric.Natural'@.
 
-damerauLevenshteinNorm :: Text -> Text -> Ratio Natural
-damerauLevenshteinNorm = norm damerauLevenshtein
-{-# INLINE damerauLevenshteinNorm #-}
+damerauLevenshteinNorm :: Text -> Text -> Ratio Int
+damerauLevenshteinNorm = norm damerauLevenshtein_
+
+-- | An internal helper, returns Damerau-Levenshtein distance as the first
+-- element of the tuple and max length of the two inputs as the second
+-- element of the tuple.
+
+damerauLevenshtein_ :: Text -> Text -> (Int, Int)
+damerauLevenshtein_ _ _ = (1,1)
+{-# INLINE damerauLevenshtein_ #-}
 
 ----------------------------------------------------------------------------
 -- Other
@@ -164,20 +157,12 @@ damerauLevenshteinNorm = norm damerauLevenshtein
 -- or 'Nothing' will be returned.
 --
 -- See also: <https://en.wikipedia.org/wiki/Hamming_distance>.
+--
+-- __Heads up__, before version /0.3.0/ this function returned @'Maybe'
+-- 'Data.Numeric.Natural'@.
 
-hamming :: Text -> Text -> Maybe Natural
+hamming :: Text -> Text -> Maybe Int
 hamming a b =
-  if T.length a == T.length b
-    then Just . unsafePerformIO . TF.useAsPtr a $ \aptr size ->
-      TF.useAsPtr b $ \bptr _ ->
-        fromIntegral <$> c_hamming (fromIntegral size) aptr bptr
-    else Nothing
-
-foreign import ccall unsafe "tmetrics_hamming"
-  c_hamming :: CUInt -> Ptr Word16 -> Ptr Word16 -> IO CUInt
-
-hamming_ :: Text -> Text -> Maybe Int
-hamming_ a b =
   if T.length a == T.length b
     then Just (go 0 0 0)
     else Nothing
@@ -196,7 +181,7 @@ hamming_ a b =
 -- While the algorithm is pretty clear for artificial examples (like those
 -- from the linked Wikipedia article), for /arbitrary/ strings, it may be
 -- hard to decide which of two strings should be considered as one having
--- “reference” order of characters (since order of matching characters in an
+-- “reference” order of characters (order of matching characters in an
 -- essential part of the definition of the algorithm). This makes us
 -- consider the first string the “reference” string (with correct order of
 -- characters). Thus generally,
@@ -209,12 +194,12 @@ hamming_ a b =
 -- See also: <https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
 --
 -- @since 0.2.0
+--
+-- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
+-- 'Data.Numeric.Natural'@.
 
-jaro :: Text -> Text -> Ratio Natural
-jaro = jaroCommon (\_ _ _ _ x -> return x)
-
-jaro_ :: Text -> Text -> Ratio Int
-jaro_ a b =
+jaro :: Text -> Text -> Ratio Int
+jaro a b =
   if T.null a || T.null b
     then 0 % 1
     else runST $ do
@@ -259,53 +244,25 @@ jaro_ a b =
                 (m % lenb) +
                 ((m - t) % m)) / 3
 
-jaroCommon :: (CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> Ratio Natural -> IO (Ratio Natural)) -> Text -> Text -> Ratio Natural
-jaroCommon f a b = unsafePerformIO $ alloca $ \m' -> alloca $ \t' ->
-  TF.useAsPtr a $ \aptr asize ->
-    TF.useAsPtr b $ \bptr bsize ->
-      if asize == 0 || bsize == 0
-        then return (0 % 1)
-        else do
-          let asize' = fromIntegral asize
-              bsize' = fromIntegral bsize
-          c_jaro m' t' asize' aptr bsize' bptr
-          m <- fromIntegral <$> peek m'
-          t <- fromIntegral <$> peek t'
-          f asize' aptr bsize' bptr $
-            if m == 0
-              then 0
-              else ((m % fromIntegral asize) +
-                    (m % fromIntegral bsize) +
-                    ((m - t) % m)) / 3
-{-# INLINE jaroCommon #-}
-
-foreign import ccall unsafe "tmetrics_jaro"
-  c_jaro :: Ptr CUInt -> Ptr CUInt -> CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO ()
-
 -- | Return Jaro-Winkler distance between two 'Text' values. Returned value
 -- is in range from 0 (no similarity) to 1 (exact match).
 --
 -- See also: <https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
 --
 -- @since 0.2.0
+--
+-- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
+-- 'Data.Numeric.Natural'@.
 
-jaroWinkler :: Text -> Text -> Ratio Natural
-jaroWinkler = jaroCommon g
+jaroWinkler :: Text -> Text -> Ratio Int
+jaroWinkler a b = dj + (1 % 10) * l * (1 - dj)
   where
-    g asize aptr bsize bptr dj = do
-      l <- fromIntegral <$> c_common_prefix asize aptr bsize bptr
-      return (dj + (1  % 10) * l * (1 - dj))
+    dj = inline (jaro a b)
+    l  = fromIntegral (commonPrefix a b)
 
-foreign import ccall unsafe "tmetrics_common_prefix"
-  c_common_prefix :: CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt
+-- | Return length of common prefix two 'Text' values have.
 
-jaroWinkler_ :: Text -> Text -> Ratio Int
-jaroWinkler_ a b = dj + (1 % 10) * l * (1 - dj)
-  where
-    dj = inline (jaro_ a b)
-    l  = (fromIntegral . inline) (commonPrefix a b)
-
-commonPrefix :: Text -> Text -> Word
+commonPrefix :: Text -> Text -> Int
 commonPrefix a b = go 0 0 0
   where
     go !na !nb !r =
@@ -317,25 +274,15 @@ commonPrefix a b = go 0 0 0
             | otherwise  -> r
     lena = TU.lengthWord16 a
     lenb = TU.lengthWord16 b
+{-# INLINE commonPrefix #-}
 
 ----------------------------------------------------------------------------
 -- Helpers
 
-withTwo
-  :: (CUInt -> Ptr Word16 -> CUInt -> Ptr Word16 -> IO CUInt)
-  -> Text
-  -> Text
-  -> Natural
-withTwo f a b =
-  unsafePerformIO . TF.useAsPtr a $ \aptr asize ->
-    TF.useAsPtr b $ \bptr bsize ->
-      fromIntegral <$> f (fromIntegral asize) aptr (fromIntegral bsize) bptr
-{-# INLINE withTwo #-}
-
-norm :: (Text -> Text -> Natural) -> Text -> Text -> Ratio Natural
+norm :: (Text -> Text -> (Int, Int)) -> Text -> Text -> Ratio Int
 norm f a b =
-  let r = f a b
+  let (r, l) = f a b
   in if r == 0
        then 1 % 1
-       else 1 % 1 - r % fromIntegral (max (T.length a) (T.length b))
+       else 1 % 1 - r % l
 {-# INLINE norm #-}
