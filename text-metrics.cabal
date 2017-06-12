@@ -14,7 +14,6 @@ build-type:           Simple
 description:          Calculate various string metrics efficiently.
 extra-doc-files:      CHANGELOG.md
                     , README.md
-extra-source-files:   cbits/*.h
 
 source-repository head
   type:               git
@@ -32,8 +31,6 @@ library
   if !impl(ghc >= 7.10)
     build-depends:    nats             == 1.*
   exposed-modules:    Data.Text.Metrics
-  c-sources:          cbits/text_metrics.c
-  include-dirs:       cbits
   if flag(dev)
     ghc-options:      -Wall -Werror
   else
