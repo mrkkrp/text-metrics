@@ -192,7 +192,8 @@ damerauLevenshtein_ a b
 ----------------------------------------------------------------------------
 -- Treating inputs like sets
 
--- | Return overlap coefficient for two 'Text' values. Returns 1 if both
+-- | Return overlap coefficient for two 'Text' values. Returned value is in
+-- the range from 0 (no similarity) to 1 (exact match). Return 1 if both
 -- 'Text' values are empty.
 --
 -- See also: <https://en.wikipedia.org/wiki/Overlap_coefficient>.
@@ -207,17 +208,23 @@ overlap a b =
   where
     d = min (T.length a) (T.length b)
 
--- | Return Jaccard similarity coefficient for two 'Text' values.
+-- | Return Jaccard similarity coefficient for two 'Text' values. Returned
+-- value is in the range from 0 (no similarity) to 1 (exact match). Return 1
+-- if both
 --
 -- See also: <https://en.wikipedia.org/wiki/Jaccard_index>
 --
 -- @since 0.3.0
 
 jaccard :: Text -> Text -> Ratio Int
-jaccard a b = intersectionSize ma mb % unionSize ma mb
+jaccard a b =
+  if d == 0
+    then 1 % 1
+    else intersectionSize ma mb % d
   where
     ma = mkTextMap a
     mb = mkTextMap b
+    d  = unionSize ma mb
 
 -- | Make a map from 'Char' to 'Int' representing how many times the 'Char'
 -- appears in the input 'Text'.
@@ -237,7 +244,7 @@ intersectionSize a b = M.foldl' (+) 0 (M.intersectionWith min a b)
 -- | Return union size between two 'Text'-maps.
 
 unionSize :: Map Char Int -> Map Char Int -> Int
-unionSize a b = M.foldl' (+) 0 (M.unionWith (+) a b)
+unionSize a b = M.foldl' (+) 0 (M.unionWith max a b)
 {-# INLINE unionSize #-}
 
 ----------------------------------------------------------------------------
