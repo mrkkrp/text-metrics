@@ -12,6 +12,8 @@ main = defaultMain
   , btmetric "levenshteinNorm"        levenshteinNorm
   , btmetric "damerauLevenshtein"     damerauLevenshtein
   , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
+  , btmetric "overlap"                overlap
+  , btmetric "jaccard"                jaccard
   , btmetric "hamming"                hamming
   , btmetric "jaro"                   jaro
   , btmetric "jaroWinkler"            jaroWinkler ]
