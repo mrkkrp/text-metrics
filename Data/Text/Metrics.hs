@@ -26,6 +26,9 @@ module Data.Text.Metrics
   , levenshteinNorm
   , damerauLevenshtein
   , damerauLevenshteinNorm
+    -- * Treating inputs like sets
+  , overlap
+  , jaccard
     -- * Other
   , hamming
   , jaro
@@ -34,9 +37,11 @@ where
 
 import Control.Monad
 import Control.Monad.ST
+import Data.Map.Strict (Map)
 import Data.Ratio
 import Data.Text
 import GHC.Exts (inline)
+import qualified Data.Map.Strict as M
 import qualified Data.Text                   as T
 import qualified Data.Text.Unsafe            as TU
 import qualified Data.Vector.Unboxed.Mutable as VUM
@@ -183,6 +188,64 @@ damerauLevenshtein_ a b
     lenb = T.length b
     lenm = max lena lenb
 {-# INLINE damerauLevenshtein_ #-}
+
+----------------------------------------------------------------------------
+-- Treating inputs like sets
+
+-- | Return overlap coefficient for two 'Text' values. Returned value is in
+-- the range from 0 (no similarity) to 1 (exact match). Return 1 if both
+-- 'Text' values are empty.
+--
+-- See also: <https://en.wikipedia.org/wiki/Overlap_coefficient>.
+--
+-- @since 0.3.0
+
+overlap :: Text -> Text -> Ratio Int
+overlap a b =
+  if d == 0
+    then 1 % 1
+    else intersectionSize (mkTextMap a) (mkTextMap b) % d
+  where
+    d = min (T.length a) (T.length b)
+
+-- | Return Jaccard similarity coefficient for two 'Text' values. Returned
+-- value is in the range from 0 (no similarity) to 1 (exact match). Return 1
+-- if both
+--
+-- See also: <https://en.wikipedia.org/wiki/Jaccard_index>
+--
+-- @since 0.3.0
+
+jaccard :: Text -> Text -> Ratio Int
+jaccard a b =
+  if d == 0
+    then 1 % 1
+    else intersectionSize ma mb % d
+  where
+    ma = mkTextMap a
+    mb = mkTextMap b
+    d  = unionSize ma mb
+
+-- | Make a map from 'Char' to 'Int' representing how many times the 'Char'
+-- appears in the input 'Text'.
+
+mkTextMap :: Text -> Map Char Int
+mkTextMap = T.foldl' f M.empty
+  where
+    f m ch = M.insertWith (+) ch 1 m
+{-# INLINE mkTextMap #-}
+
+-- | Return intersection size between two 'Text'-maps.
+
+intersectionSize :: Map Char Int -> Map Char Int -> Int
+intersectionSize a b = M.foldl' (+) 0 (M.intersectionWith min a b)
+{-# INLINE intersectionSize #-}
+
+-- | Return union size between two 'Text'-maps.
+
+unionSize :: Map Char Int -> Map Char Int -> Int
+unionSize a b = M.foldl' (+) 0 (M.unionWith max a b)
+{-# INLINE unionSize #-}
 
 ----------------------------------------------------------------------------
 -- Other

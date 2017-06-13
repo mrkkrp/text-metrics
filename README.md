@@ -19,18 +19,13 @@ The current version of the package implements:
 * [Hamming distance](https://en.wikipedia.org/wiki/Hamming_distance)
 * [Jaro distance](https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
 * [Jaro-Winkler distance](https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
-
-TODO list:
-
 * [Overlap coefficient](https://en.wikipedia.org/wiki/Overlap_coefficient)
 * [Jaccard similarity coefficient](https://en.wikipedia.org/wiki/Jaccard_index)
 
 ## Comparison with the `edit-distance` package
 
-There
-is [`edit-distance`](https://hackage.haskell.org/package/edit-distance)
-package whose scope overlaps with the scope of this package. The differences
-are:
+There is [`edit-distance`](https://hackage.haskell.org/package/edit-distance) package whose scope overlaps with the scope of
+this package. The differences are:
 
 * `edit-distance` allows to specify costs for every operation when
   calculating Levenshtein distance (insertion, deletion, substitution, and

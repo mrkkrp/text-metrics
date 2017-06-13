@@ -14,6 +14,8 @@ main = mainWith $ do
   bmetric "levenshteinNorm"        levenshteinNorm
   bmetric "damerauLevenshtein"     damerauLevenshtein
   bmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
+  bmetric "overlap"                overlap
+  bmetric "jaccard"                jaccard
   bmetric "hamming"                hamming
   bmetric "jaro"                   jaro
   bmetric "jaroWinkler"            jaroWinkler
