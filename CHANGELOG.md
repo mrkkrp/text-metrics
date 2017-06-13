@@ -5,6 +5,9 @@
 * All functions return `Int` or `Ratio Int` instead of `Natural` and `Ratio
   Natural`.
 
+* Added `overlap` (returns overlap coefficient) and `jaccard` (returns
+  Jaccard similarity coefficient).
+
 ## Text Metrics 0.2.0
 
 * Made the `levenshtein`, `levenshteinNorm`, `damerauLevenshtein`, and
