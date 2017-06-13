@@ -124,6 +124,16 @@ spec = do
     testPair jaroWinkler "a😀c"   "abc"      (4  % 5)
 #endif
     testPair jaroWinkler ""       ""         (0  % 1)
+  describe "overlap" $ do
+    testSwap overlap
+    testPair overlap "fly" "butterfly" (1 % 1)
+    testPair overlap "night" "nacht"  (3 % 5)
+    testPair overlap "context" "contact" (5 % 7)
+    testPair overlap "red" "wax" (0 % 1)
+#if __GLASGOW_HASKELL__ >= 710
+    testPair overlap "a😀c"   "abc"   (2 % 3)
+#endif
+    testPair overlap "lucky" "lucky" (1 % 1)
 
 -- | Test that given function returns the same results when order of
 -- arguments is swapped.
