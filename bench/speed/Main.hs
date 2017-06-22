@@ -9,14 +9,15 @@ import qualified Data.Text as T
 main :: IO ()
 main = defaultMain
   [ btmetric "levenshtein"            levenshtein
-  , btmetric "levenshteinNorm"        levenshteinNorm
-  , btmetric "damerauLevenshtein"     damerauLevenshtein
-  , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
-  , btmetric "overlap"                overlap
-  , btmetric "jaccard"                jaccard
-  , btmetric "hamming"                hamming
-  , btmetric "jaro"                   jaro
-  , btmetric "jaroWinkler"            jaroWinkler ]
+  -- , btmetric "levenshteinNorm"        levenshteinNorm
+  -- , btmetric "damerauLevenshtein"     damerauLevenshtein
+  -- , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
+  -- , btmetric "overlap"                overlap
+  -- , btmetric "jaccard"                jaccard
+  -- , btmetric "hamming"                hamming
+  -- , btmetric "jaro"                   jaro
+  -- , btmetric "jaroWinkler"            jaroWinkler
+  ]
 
 -- | Produce benchmark group to test.
 
