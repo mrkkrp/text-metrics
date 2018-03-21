@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Main (main) where
 
 import Control.DeepSeq
@@ -6,17 +8,21 @@ import Data.Text (Text)
 import Data.Text.Metrics
 import qualified Data.Text as T
 
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative ((<$>))
+#endif
+
 main :: IO ()
 main = defaultMain
   [ btmetric "levenshtein"            levenshtein
-  -- , btmetric "levenshteinNorm"        levenshteinNorm
-  -- , btmetric "damerauLevenshtein"     damerauLevenshtein
-  -- , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
-  -- , btmetric "overlap"                overlap
-  -- , btmetric "jaccard"                jaccard
-  -- , btmetric "hamming"                hamming
-  -- , btmetric "jaro"                   jaro
-  -- , btmetric "jaroWinkler"            jaroWinkler
+  , btmetric "levenshteinNorm"        levenshteinNorm
+  , btmetric "damerauLevenshtein"     damerauLevenshtein
+  , btmetric "damerauLevenshteinNorm" damerauLevenshteinNorm
+  , btmetric "overlap"                overlap
+  , btmetric "jaccard"                jaccard
+  , btmetric "hamming"                hamming
+  , btmetric "jaro"                   jaro
+  , btmetric "jaroWinkler"            jaroWinkler
   ]
 
 -- | Produce benchmark group to test.
