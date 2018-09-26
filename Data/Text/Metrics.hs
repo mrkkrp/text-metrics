@@ -17,7 +17,6 @@
 -- <https://markkarpov.com/post/migrating-text-metrics.html>
 
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE CPP          #-}
 {-# LANGUAGE MultiWayIf   #-}
 
 module Data.Text.Metrics
@@ -45,10 +44,6 @@ import qualified Data.Map.Strict as M
 import qualified Data.Text                   as T
 import qualified Data.Text.Unsafe            as TU
 import qualified Data.Vector.Unboxed.Mutable as VUM
-
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative
-#endif
 
 ----------------------------------------------------------------------------
 -- Levenshtein variants

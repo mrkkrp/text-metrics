@@ -1,3 +1,7 @@
+## Unreleased
+
+* Dropped support for GHC 7.8.
+
 ## Text Metrics 0.3.0
 
 * All functions are now implemented in pure Haskell.
