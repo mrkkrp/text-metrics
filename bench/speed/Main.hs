@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 module Main (main) where
 
 import Control.DeepSeq
@@ -7,10 +5,6 @@ import Criterion.Main
 import Data.Text (Text)
 import Data.Text.Metrics
 import qualified Data.Text as T
-
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative ((<$>))
-#endif
 
 main :: IO ()
 main = defaultMain

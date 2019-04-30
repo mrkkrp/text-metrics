@@ -1,6 +1,6 @@
 ## Unreleased
 
-* Dropped support for GHC 7.8.
+* Dropped support for GHC 7.10 and older.
 
 ## Text Metrics 0.3.0
 
