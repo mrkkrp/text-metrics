@@ -23,8 +23,9 @@ The current version of the package implements:
 
 ## Comparison with the `edit-distance` package
 
-There is [`edit-distance`](https://hackage.haskell.org/package/edit-distance) package whose scope overlaps with the scope of
-this package. The differences are:
+There is
+[`edit-distance`](https://hackage.haskell.org/package/edit-distance) package
+whose scope overlaps with the scope of this package. The differences are:
 
 * `edit-distance` allows to specify costs for every operation when
   calculating Levenshtein distance (insertion, deletion, substitution, and
@@ -40,7 +41,16 @@ this package. The differences are:
 ## Implementation
 
 Although we originally used C for speed, currently all functions are pure
-Haskell tuned for performance. See [this blog post](https://markkarpov.com/post/migrating-text-metrics.html) for more info.
+Haskell tuned for performance. See [this blog
+post](https://markkarpov.com/post/migrating-text-metrics.html) for more
+info.
+
+## Contribution
+
+Issues, bugs, and questions may be reported in [the GitHub issue tracker for
+this project](https://github.com/mrkkrp/text-metrics/issues).
+
+Pull requests are also welcome.
 
 ## License
 
