@@ -1,3 +1,6 @@
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE MultiWayIf #-}
+
 -- |
 -- Module      :  Data.Text.Metrics
 -- Copyright   :  © 2016–present Mark Karpov
@@ -15,35 +18,34 @@
 -- implementations are written in Haskell while staying almost as fast, see:
 --
 -- <https://markkarpov.com/post/migrating-text-metrics.html>
-
-{-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE MultiWayIf   #-}
-
 module Data.Text.Metrics
   ( -- * Levenshtein variants
-    levenshtein
-  , levenshteinNorm
-  , damerauLevenshtein
-  , damerauLevenshteinNorm
+    levenshtein,
+    levenshteinNorm,
+    damerauLevenshtein,
+    damerauLevenshteinNorm,
+
     -- * Treating inputs like sets
-  , overlap
-  , jaccard
+    overlap,
+    jaccard,
+
     -- * Other
-  , hamming
-  , jaro
-  , jaroWinkler )
+    hamming,
+    jaro,
+    jaroWinkler,
+  )
 where
 
 import Control.Monad
 import Control.Monad.ST
 import Data.Map.Strict (Map)
+import qualified Data.Map.Strict as M
 import Data.Ratio
 import Data.Text
-import GHC.Exts (inline)
-import qualified Data.Map.Strict as M
-import qualified Data.Text                   as T
-import qualified Data.Text.Unsafe            as TU
+import qualified Data.Text as T
+import qualified Data.Text.Unsafe as TU
 import qualified Data.Vector.Unboxed.Mutable as VUM
+import GHC.Exts (inline)
 
 ----------------------------------------------------------------------------
 -- Levenshtein variants
@@ -58,7 +60,6 @@ import qualified Data.Vector.Unboxed.Mutable as VUM
 --
 -- __Heads up__, before version /0.3.0/ this function returned
 -- 'Data.Numeric.Natural'.
-
 levenshtein :: Text -> Text -> Int
 levenshtein a b = fst (levenshtein_ a b)
 
@@ -71,44 +72,42 @@ levenshtein a b = fst (levenshtein_ a b)
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
 -- 'Data.Numeric.Natural'@.
-
 levenshteinNorm :: Text -> Text -> Ratio Int
 levenshteinNorm = norm levenshtein_
 
 -- | An internal helper, returns Levenshtein distance as the first element
 -- of the tuple and max length of the two inputs as the second element of
 -- the tuple.
-
 levenshtein_ :: Text -> Text -> (Int, Int)
 levenshtein_ a b
   | T.null a = (lenb, lenm)
   | T.null b = (lena, lenm)
   | otherwise = runST $ do
-      let v_len = lenb + 1
-      v <- VUM.unsafeNew (v_len * 2)
-      let gov !i =
-            when (i < v_len) $ do
-              VUM.unsafeWrite v i i
-              gov (i + 1)
-          goi !i !na !v0 !v1 = do
-            let !(TU.Iter ai da) = TU.iter a na
-                goj !j !nb =
-                  when (j < lenb) $ do
-                    let !(TU.Iter bj db) = TU.iter b nb
-                        cost = if ai == bj then 0 else 1
-                    x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
-                    y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
-                    z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
-                    VUM.unsafeWrite v (v1 + j + 1) (min x (min y z))
-                    goj (j + 1) (nb + db)
-            when (i < lena) $ do
-              VUM.unsafeWrite v v1 (i + 1)
-              goj 0 0
-              goi (i + 1) (na + da) v1 v0
-      gov 0
-      goi 0 0 0 v_len
-      ld <- VUM.unsafeRead v (lenb + if even lena then 0 else v_len)
-      return (ld, lenm)
+    let v_len = lenb + 1
+    v <- VUM.unsafeNew (v_len * 2)
+    let gov !i =
+          when (i < v_len) $ do
+            VUM.unsafeWrite v i i
+            gov (i + 1)
+        goi !i !na !v0 !v1 = do
+          let !(TU.Iter ai da) = TU.iter a na
+              goj !j !nb =
+                when (j < lenb) $ do
+                  let !(TU.Iter bj db) = TU.iter b nb
+                      cost = if ai == bj then 0 else 1
+                  x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
+                  y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
+                  z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
+                  VUM.unsafeWrite v (v1 + j + 1) (min x (min y z))
+                  goj (j + 1) (nb + db)
+          when (i < lena) $ do
+            VUM.unsafeWrite v v1 (i + 1)
+            goj 0 0
+            goi (i + 1) (na + da) v1 v0
+    gov 0
+    goi 0 0 0 v_len
+    ld <- VUM.unsafeRead v (lenb + if even lena then 0 else v_len)
+    return (ld, lenm)
   where
     lena = T.length a
     lenb = T.length b
@@ -123,7 +122,6 @@ levenshtein_ a b
 --
 -- __Heads up__, before version /0.3.0/ this function returned
 -- 'Data.Numeric.Natural'.
-
 damerauLevenshtein :: Text -> Text -> Int
 damerauLevenshtein a b = fst (damerauLevenshtein_ a b)
 
@@ -135,49 +133,47 @@ damerauLevenshtein a b = fst (damerauLevenshtein_ a b)
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
 -- 'Data.Numeric.Natural'@.
-
 damerauLevenshteinNorm :: Text -> Text -> Ratio Int
 damerauLevenshteinNorm = norm damerauLevenshtein_
 
 -- | An internal helper, returns Damerau-Levenshtein distance as the first
 -- element of the tuple and max length of the two inputs as the second
 -- element of the tuple.
-
 damerauLevenshtein_ :: Text -> Text -> (Int, Int)
 damerauLevenshtein_ a b
   | T.null a = (lenb, lenm)
   | T.null b = (lena, lenm)
   | otherwise = runST $ do
-      let v_len = lenb + 1
-      v <- VUM.unsafeNew (v_len * 3)
-      let gov !i =
-            when (i < v_len) $ do
-              VUM.unsafeWrite v i i
-              gov (i + 1)
-          goi !i !na !ai_1 !v0 !v1 !v2 = do
-            let !(TU.Iter ai da) = TU.iter a na
-                goj !j !nb !bj_1 =
-                  when (j < lenb) $ do
-                    let !(TU.Iter bj db) = TU.iter b nb
-                        cost = if ai == bj then 0 else 1
-                    x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
-                    y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
-                    z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
-                    let g = min x (min y z)
-                    val <- (+ cost) <$> VUM.unsafeRead v (v2 + j - 1)
-                    VUM.unsafeWrite v (v1 + j + 1) $
-                      if i > 0 && j > 0 && ai == bj_1 && ai_1 == bj && val < g
-                        then val
-                        else g
-                    goj (j + 1) (nb + db) bj
-            when (i < lena) $ do
-              VUM.unsafeWrite v v1 (i + 1)
-              goj 0 0 'a'
-              goi (i + 1) (na + da) ai v1 v2 v0
-      gov 0
-      goi 0 0 'a' 0 v_len (v_len * 2)
-      ld <- VUM.unsafeRead v (lenb + (lena `mod` 3) * v_len)
-      return (ld, lenm)
+    let v_len = lenb + 1
+    v <- VUM.unsafeNew (v_len * 3)
+    let gov !i =
+          when (i < v_len) $ do
+            VUM.unsafeWrite v i i
+            gov (i + 1)
+        goi !i !na !ai_1 !v0 !v1 !v2 = do
+          let !(TU.Iter ai da) = TU.iter a na
+              goj !j !nb !bj_1 =
+                when (j < lenb) $ do
+                  let !(TU.Iter bj db) = TU.iter b nb
+                      cost = if ai == bj then 0 else 1
+                  x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
+                  y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
+                  z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
+                  let g = min x (min y z)
+                  val <- (+ cost) <$> VUM.unsafeRead v (v2 + j - 1)
+                  VUM.unsafeWrite v (v1 + j + 1) $
+                    if i > 0 && j > 0 && ai == bj_1 && ai_1 == bj && val < g
+                      then val
+                      else g
+                  goj (j + 1) (nb + db) bj
+          when (i < lena) $ do
+            VUM.unsafeWrite v v1 (i + 1)
+            goj 0 0 'a'
+            goi (i + 1) (na + da) ai v1 v2 v0
+    gov 0
+    goi 0 0 'a' 0 v_len (v_len * 2)
+    ld <- VUM.unsafeRead v (lenb + (lena `mod` 3) * v_len)
+    return (ld, lenm)
   where
     lena = T.length a
     lenb = T.length b
@@ -194,7 +190,6 @@ damerauLevenshtein_ a b
 -- See also: <https://en.wikipedia.org/wiki/Overlap_coefficient>.
 --
 -- @since 0.3.0
-
 overlap :: Text -> Text -> Ratio Int
 overlap a b =
   if d == 0
@@ -210,7 +205,6 @@ overlap a b =
 -- See also: <https://en.wikipedia.org/wiki/Jaccard_index>
 --
 -- @since 0.3.0
-
 jaccard :: Text -> Text -> Ratio Int
 jaccard a b =
   if d == 0
@@ -219,11 +213,10 @@ jaccard a b =
   where
     ma = mkTextMap a
     mb = mkTextMap b
-    d  = unionSize ma mb
+    d = unionSize ma mb
 
 -- | Make a map from 'Char' to 'Int' representing how many times the 'Char'
 -- appears in the input 'Text'.
-
 mkTextMap :: Text -> Map Char Int
 mkTextMap = T.foldl' f M.empty
   where
@@ -231,13 +224,11 @@ mkTextMap = T.foldl' f M.empty
 {-# INLINE mkTextMap #-}
 
 -- | Return intersection size between two 'Text'-maps.
-
 intersectionSize :: Map Char Int -> Map Char Int -> Int
 intersectionSize a b = M.foldl' (+) 0 (M.intersectionWith min a b)
 {-# INLINE intersectionSize #-}
 
 -- | Return union size between two 'Text'-maps.
-
 unionSize :: Map Char Int -> Map Char Int -> Int
 unionSize a b = M.foldl' (+) 0 (M.unionWith max a b)
 {-# INLINE unionSize #-}
@@ -254,7 +245,6 @@ unionSize a b = M.foldl' (+) 0 (M.unionWith max a b)
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Maybe'
 -- 'Data.Numeric.Natural'@.
-
 hamming :: Text -> Text -> Maybe Int
 hamming a b =
   if T.length a == T.length b
@@ -264,9 +254,9 @@ hamming a b =
     go !na !nb !r =
       let !(TU.Iter cha da) = TU.iter a na
           !(TU.Iter chb db) = TU.iter b nb
-      in if | na  == len -> r
-            | cha /= chb -> go (na + da) (nb + db) (r + 1)
-            | otherwise  -> go (na + da) (nb + db) r
+       in if  | na == len -> r
+              | cha /= chb -> go (na + da) (nb + db) (r + 1)
+              | otherwise -> go (na + da) (nb + db) r
     len = TU.lengthWord16 a
 
 -- | Return Jaro distance between two 'Text' values. Returned value is in
@@ -291,7 +281,6 @@ hamming a b =
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
 -- 'Data.Numeric.Natural'@.
-
 jaro :: Text -> Text -> Ratio Int
 jaro a b =
   if T.null a || T.null b
@@ -321,7 +310,7 @@ jaro a b =
                         tj <- VUM.unsafeRead r 0
                         if j < tj
                           then VUM.unsafeModify r (+ 1) 2
-                          else VUM.unsafeWrite  r 0 j
+                          else VUM.unsafeWrite r 0 j
                         VUM.unsafeWrite v j 1
                         VUM.unsafeModify r (+ 1) 1
                       else goj (j + 1) (nb + db)
@@ -334,9 +323,12 @@ jaro a b =
       return $
         if m == 0
           then 0 % 1
-          else ((m % lena) +
-                (m % lenb) +
-                ((m - t) % m)) / 3
+          else
+            ( (m % lena)
+                + (m % lenb)
+                + ((m - t) % m)
+            )
+              / 3
 
 -- | Return Jaro-Winkler distance between two 'Text' values. Returned value
 -- is in range from 0 (no similarity) to 1 (exact match).
@@ -347,25 +339,23 @@ jaro a b =
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
 -- 'Data.Numeric.Natural'@.
-
 jaroWinkler :: Text -> Text -> Ratio Int
 jaroWinkler a b = dj + (1 % 10) * l * (1 - dj)
   where
     dj = inline (jaro a b)
-    l  = fromIntegral (commonPrefix a b)
+    l = fromIntegral (commonPrefix a b)
 
 -- | Return length of common prefix two 'Text' values have.
-
 commonPrefix :: Text -> Text -> Int
 commonPrefix a b = go 0 0 0
   where
     go !na !nb !r =
       let !(TU.Iter cha da) = TU.iter a na
           !(TU.Iter chb db) = TU.iter b nb
-      in if | na == lena -> r
-            | nb == lenb -> r
-            | cha == chb -> go (na + da) (nb + db) (r + 1)
-            | otherwise  -> r
+       in if  | na == lena -> r
+              | nb == lenb -> r
+              | cha == chb -> go (na + da) (nb + db) (r + 1)
+              | otherwise -> r
     lena = TU.lengthWord16 a
     lenb = TU.lengthWord16 b
 {-# INLINE commonPrefix #-}
@@ -376,7 +366,7 @@ commonPrefix a b = go 0 0 0
 norm :: (Text -> Text -> (Int, Int)) -> Text -> Text -> Ratio Int
 norm f a b =
   let (r, l) = f a b
-  in if r == 0
-       then 1 % 1
-       else 1 % 1 - r % l
+   in if r == 0
+        then 1 % 1
+        else 1 % 1 - r % l
 {-# INLINE norm #-}
