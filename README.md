@@ -4,7 +4,7 @@
 [![Hackage](https://img.shields.io/hackage/v/text-metrics.svg?style=flat)](https://hackage.haskell.org/package/text-metrics)
 [![Stackage Nightly](http://stackage.org/package/text-metrics/badge/nightly)](http://stackage.org/nightly/package/text-metrics)
 [![Stackage LTS](http://stackage.org/package/text-metrics/badge/lts)](http://stackage.org/lts/package/text-metrics)
-[![Build Status](https://travis-ci.org/mrkkrp/text-metrics.svg?branch=master)](https://travis-ci.org/mrkkrp/text-metrics)
+![CI](https://github.com/mrkkrp/text-metrics/workflows/CI/badge.svg?branch=master)
 
 The library provides efficient implementations of various strings metric
 algorithms. It works with strict `Text` values.
