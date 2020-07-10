@@ -124,10 +124,10 @@ spec = do
 -- | Test that given function returns the same results when order of
 -- arguments is swapped.
 testSwap :: (Eq a, Show a) => (Text -> Text -> a) -> SpecWith ()
-testSwap f = context "if we swap the arguments"
-  $ it "produces the same result"
-  $ property
-  $ \a b -> f a b === f b a
+testSwap f = context "if we swap the arguments" $
+  it "produces the same result" $
+    property $ \a b ->
+      f a b === f b a
 
 -- | Create spec for given metric function applying it to two 'Text' values
 -- and comparing the result with expected one.

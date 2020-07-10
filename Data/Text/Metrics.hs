@@ -254,7 +254,8 @@ hamming a b =
     go !na !nb !r =
       let !(TU.Iter cha da) = TU.iter a na
           !(TU.Iter chb db) = TU.iter b nb
-       in if  | na == len -> r
+       in if
+              | na == len -> r
               | cha /= chb -> go (na + da) (nb + db) (r + 1)
               | otherwise -> go (na + da) (nb + db) r
     len = TU.lengthWord16 a
@@ -352,7 +353,8 @@ commonPrefix a b = go 0 0 0
     go !na !nb !r =
       let !(TU.Iter cha da) = TU.iter a na
           !(TU.Iter chb db) = TU.iter b nb
-       in if  | na == lena -> r
+       in if
+              | na == lena -> r
               | nb == lenb -> r
               | cha == chb -> go (na + da) (nb + db) (r + 1)
               | otherwise -> r
