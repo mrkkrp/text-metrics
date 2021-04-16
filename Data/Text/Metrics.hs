@@ -50,9 +50,9 @@ import GHC.Exts (inline)
 ----------------------------------------------------------------------------
 -- Levenshtein variants
 
--- | Return Levenshtein distance between two 'Text' values. Classic
+-- | Return the Levenshtein distance between two 'Text' values. The
 -- Levenshtein distance between two strings is the minimal number of
--- operations necessary to transform one string into another. For
+-- operations necessary to transform one string into another. For the
 -- Levenshtein distance allowed operations are: deletion, insertion, and
 -- substitution.
 --
@@ -63,7 +63,7 @@ import GHC.Exts (inline)
 levenshtein :: Text -> Text -> Int
 levenshtein a b = fst (levenshtein_ a b)
 
--- | Return normalized Levenshtein distance between two 'Text' values.
+-- | Return the normalized Levenshtein distance between two 'Text' values.
 -- Result is a non-negative rational number (represented as @'Ratio'
 -- 'Data.Numeric.Natural'@), where 0 signifies no similarity between the
 -- strings, while 1 means exact match.
@@ -75,9 +75,9 @@ levenshtein a b = fst (levenshtein_ a b)
 levenshteinNorm :: Text -> Text -> Ratio Int
 levenshteinNorm = norm levenshtein_
 
--- | An internal helper, returns Levenshtein distance as the first element
--- of the tuple and max length of the two inputs as the second element of
--- the tuple.
+-- | An internal helper, returns the Levenshtein distance as the first
+-- element of the tuple and max length of the two inputs as the second
+-- element of the tuple.
 levenshtein_ :: Text -> Text -> (Int, Int)
 levenshtein_ a b
   | T.null a = (lenb, lenm)
@@ -114,7 +114,7 @@ levenshtein_ a b
     lenm = max lena lenb
 {-# INLINE levenshtein_ #-}
 
--- | Return Damerau-Levenshtein distance between two 'Text' values. The
+-- | Return the Damerau-Levenshtein distance between two 'Text' values. The
 -- function works like 'levenshtein', but the collection of allowed
 -- operations also includes transposition of two /adjacent/ characters.
 --
@@ -125,7 +125,7 @@ levenshtein_ a b
 damerauLevenshtein :: Text -> Text -> Int
 damerauLevenshtein a b = fst (damerauLevenshtein_ a b)
 
--- | Return normalized Damerau-Levenshtein distance between two 'Text'
+-- | Return the normalized Damerau-Levenshtein distance between two 'Text'
 -- values. 0 signifies no similarity between the strings, while 1 means
 -- exact match.
 --
@@ -136,8 +136,8 @@ damerauLevenshtein a b = fst (damerauLevenshtein_ a b)
 damerauLevenshteinNorm :: Text -> Text -> Ratio Int
 damerauLevenshteinNorm = norm damerauLevenshtein_
 
--- | An internal helper, returns Damerau-Levenshtein distance as the first
--- element of the tuple and max length of the two inputs as the second
+-- | An internal helper, returns the Damerau-Levenshtein distance as the
+-- first element of the tuple and max length of the two inputs as the second
 -- element of the tuple.
 damerauLevenshtein_ :: Text -> Text -> (Int, Int)
 damerauLevenshtein_ a b
@@ -183,8 +183,8 @@ damerauLevenshtein_ a b
 ----------------------------------------------------------------------------
 -- Treating inputs like sets
 
--- | Return overlap coefficient for two 'Text' values. Returned value is in
--- the range from 0 (no similarity) to 1 (exact match). Return 1 if both
+-- | Return the overlap coefficient for two 'Text' values. Returned value is
+-- in the range from 0 (no similarity) to 1 (exact match). Return 1 if both
 -- 'Text' values are empty.
 --
 -- See also: <https://en.wikipedia.org/wiki/Overlap_coefficient>.
@@ -198,9 +198,9 @@ overlap a b =
   where
     d = min (T.length a) (T.length b)
 
--- | Return Jaccard similarity coefficient for two 'Text' values. Returned
--- value is in the range from 0 (no similarity) to 1 (exact match). Return 1
--- if both
+-- | Return the Jaccard similarity coefficient for two 'Text' values.
+-- Returned value is in the range from 0 (no similarity) to 1 (exact match).
+-- Return 1 if both
 --
 -- See also: <https://en.wikipedia.org/wiki/Jaccard_index>
 --
@@ -236,7 +236,7 @@ unionSize a b = M.foldl' (+) 0 (M.unionWith max a b)
 ----------------------------------------------------------------------------
 -- Other
 
--- | /O(n)/ Return Hamming distance between two 'Text' values. Hamming
+-- | /O(n)/ Return the Hamming distance between two 'Text' values. Hamming
 -- distance is defined as the number of positions at which the corresponding
 -- symbols are different. The input 'Text' values should be of equal length
 -- or 'Nothing' will be returned.
@@ -260,8 +260,8 @@ hamming a b =
               | otherwise -> go (na + da) (nb + db) r
     len = TU.lengthWord16 a
 
--- | Return Jaro distance between two 'Text' values. Returned value is in
--- the range from 0 (no similarity) to 1 (exact match).
+-- | Return the Jaro distance between two 'Text' values. Returned value is
+-- in the range from 0 (no similarity) to 1 (exact match).
 --
 -- While the algorithm is pretty clear for artificial examples (like those
 -- from the linked Wikipedia article), for /arbitrary/ strings, it may be
@@ -331,8 +331,8 @@ jaro a b =
             )
               / 3
 
--- | Return Jaro-Winkler distance between two 'Text' values. Returned value
--- is in range from 0 (no similarity) to 1 (exact match).
+-- | Return the Jaro-Winkler distance between two 'Text' values. Returned
+-- value is in range from 0 (no similarity) to 1 (exact match).
 --
 -- See also: <https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance>
 --
@@ -346,7 +346,7 @@ jaroWinkler a b = dj + (1 % 10) * l * (1 - dj)
     dj = inline (jaro a b)
     l = fromIntegral (commonPrefix a b)
 
--- | Return length of common prefix two 'Text' values have.
+-- | Return the length of the common prefix two 'Text' values have.
 commonPrefix :: Text -> Text -> Int
 commonPrefix a b = go 0 0 0
   where
