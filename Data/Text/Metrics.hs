@@ -344,7 +344,7 @@ jaroWinkler :: Text -> Text -> Ratio Int
 jaroWinkler a b = dj + (1 % 10) * l * (1 - dj)
   where
     dj = inline (jaro a b)
-    l = fromIntegral (commonPrefix a b)
+    l = fromIntegral (min 4 (commonPrefix a b))
 
 -- | Return the length of the common prefix two 'Text' values have.
 commonPrefix :: Text -> Text -> Int

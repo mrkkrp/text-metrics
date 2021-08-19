@@ -1,4 +1,8 @@
-## Unreleased
+## Text Metrics 0.3.1
+
+* Fixed a bug in the implementation of Jaro-Winkler distance when two
+  strings share a long prefix. [PR
+  21](https://github.com/mrkkrp/text-metrics/pull/21).
 
 * Dropped support for GHC 8.6 and older.
 
