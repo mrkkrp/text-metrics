@@ -105,6 +105,8 @@ spec = do
     testPair jaroWinkler "lucky" "lucky" (1 % 1)
     testPair jaroWinkler "a😀c" "abc" (4 % 5)
     testPair jaroWinkler "" "" (0 % 1)
+    testPair jaroWinkler "aaaaaaaaaab" "aaaaaaaaaa" (54 % 55)
+    testPair jaroWinkler "aaaaaaaaaaaaaaaaaaaab" "aaaaaaaaaaaaaaaaaaaa" (104 % 105)
   describe "overlap" $ do
     testSwap overlap
     testPair overlap "fly" "butterfly" (1 % 1)

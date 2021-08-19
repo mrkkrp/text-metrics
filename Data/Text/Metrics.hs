@@ -348,7 +348,7 @@ jaroWinkler a b = dj + (1 % 10) * l * (1 - dj)
 
 -- | Return the length of the common prefix two 'Text' values have.
 commonPrefix :: Text -> Text -> Int
-commonPrefix a b = go 0 0 0
+commonPrefix a b = min 4 $ go 0 0 0
   where
     go !na !nb !r =
       let !(TU.Iter cha da) = TU.iter a na
