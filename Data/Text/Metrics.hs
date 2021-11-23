@@ -43,6 +43,7 @@ import qualified Data.Map.Strict as M
 import Data.Ratio
 import Data.Text
 import qualified Data.Text as T
+import qualified Data.Text.Internal as T
 import qualified Data.Text.Unsafe as TU
 import qualified Data.Vector.Unboxed.Mutable as VUM
 import GHC.Exts (inline)
@@ -246,7 +247,7 @@ unionSize a b = M.foldl' (+) 0 (M.unionWith max a b)
 -- __Heads up__, before version /0.3.0/ this function returned @'Maybe'
 -- 'Data.Numeric.Natural'@.
 hamming :: Text -> Text -> Maybe Int
-hamming a b =
+hamming a@(T.Text _ _ len) b =
   if T.length a == T.length b
     then Just (go 0 0 0)
     else Nothing
@@ -258,7 +259,6 @@ hamming a b =
               | na == len -> r
               | cha /= chb -> go (na + da) (nb + db) (r + 1)
               | otherwise -> go (na + da) (nb + db) r
-    len = TU.lengthWord16 a
 
 -- | Return the Jaro distance between two 'Text' values. Returned value is
 -- in the range from 0 (no similarity) to 1 (exact match).
@@ -348,18 +348,9 @@ jaroWinkler a b = dj + (1 % 10) * l * (1 - dj)
 
 -- | Return the length of the common prefix two 'Text' values have.
 commonPrefix :: Text -> Text -> Int
-commonPrefix a b = go 0 0 0
-  where
-    go !na !nb !r =
-      let !(TU.Iter cha da) = TU.iter a na
-          !(TU.Iter chb db) = TU.iter b nb
-       in if
-              | na == lena -> r
-              | nb == lenb -> r
-              | cha == chb -> go (na + da) (nb + db) (r + 1)
-              | otherwise -> r
-    lena = TU.lengthWord16 a
-    lenb = TU.lengthWord16 b
+commonPrefix a b = case T.commonPrefixes a b of
+  Nothing -> 0
+  Just (pref, _, _) -> T.length pref
 {-# INLINE commonPrefix #-}
 
 ----------------------------------------------------------------------------
