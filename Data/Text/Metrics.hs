@@ -83,31 +83,31 @@ levenshtein_ a b
   | T.null a = (lenb, lenm)
   | T.null b = (lena, lenm)
   | otherwise = runST $ do
-    let v_len = lenb + 1
-    v <- VUM.unsafeNew (v_len * 2)
-    let gov !i =
-          when (i < v_len) $ do
-            VUM.unsafeWrite v i i
-            gov (i + 1)
-        goi !i !na !v0 !v1 = do
-          let !(TU.Iter ai da) = TU.iter a na
-              goj !j !nb =
-                when (j < lenb) $ do
-                  let !(TU.Iter bj db) = TU.iter b nb
-                      cost = if ai == bj then 0 else 1
-                  x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
-                  y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
-                  z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
-                  VUM.unsafeWrite v (v1 + j + 1) (min x (min y z))
-                  goj (j + 1) (nb + db)
-          when (i < lena) $ do
-            VUM.unsafeWrite v v1 (i + 1)
-            goj 0 0
-            goi (i + 1) (na + da) v1 v0
-    gov 0
-    goi 0 0 0 v_len
-    ld <- VUM.unsafeRead v (lenb + if even lena then 0 else v_len)
-    return (ld, lenm)
+      let v_len = lenb + 1
+      v <- VUM.unsafeNew (v_len * 2)
+      let gov !i =
+            when (i < v_len) $ do
+              VUM.unsafeWrite v i i
+              gov (i + 1)
+          goi !i !na !v0 !v1 = do
+            let !(TU.Iter ai da) = TU.iter a na
+                goj !j !nb =
+                  when (j < lenb) $ do
+                    let !(TU.Iter bj db) = TU.iter b nb
+                        cost = if ai == bj then 0 else 1
+                    x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
+                    y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
+                    z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
+                    VUM.unsafeWrite v (v1 + j + 1) (min x (min y z))
+                    goj (j + 1) (nb + db)
+            when (i < lena) $ do
+              VUM.unsafeWrite v v1 (i + 1)
+              goj 0 0
+              goi (i + 1) (na + da) v1 v0
+      gov 0
+      goi 0 0 0 v_len
+      ld <- VUM.unsafeRead v (lenb + if even lena then 0 else v_len)
+      return (ld, lenm)
   where
     lena = T.length a
     lenb = T.length b
@@ -144,36 +144,36 @@ damerauLevenshtein_ a b
   | T.null a = (lenb, lenm)
   | T.null b = (lena, lenm)
   | otherwise = runST $ do
-    let v_len = lenb + 1
-    v <- VUM.unsafeNew (v_len * 3)
-    let gov !i =
-          when (i < v_len) $ do
-            VUM.unsafeWrite v i i
-            gov (i + 1)
-        goi !i !na !ai_1 !v0 !v1 !v2 = do
-          let !(TU.Iter ai da) = TU.iter a na
-              goj !j !nb !bj_1 =
-                when (j < lenb) $ do
-                  let !(TU.Iter bj db) = TU.iter b nb
-                      cost = if ai == bj then 0 else 1
-                  x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
-                  y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
-                  z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
-                  let g = min x (min y z)
-                  val <- (+ cost) <$> VUM.unsafeRead v (v2 + j - 1)
-                  VUM.unsafeWrite v (v1 + j + 1) $
-                    if i > 0 && j > 0 && ai == bj_1 && ai_1 == bj && val < g
-                      then val
-                      else g
-                  goj (j + 1) (nb + db) bj
-          when (i < lena) $ do
-            VUM.unsafeWrite v v1 (i + 1)
-            goj 0 0 'a'
-            goi (i + 1) (na + da) ai v1 v2 v0
-    gov 0
-    goi 0 0 'a' 0 v_len (v_len * 2)
-    ld <- VUM.unsafeRead v (lenb + (lena `mod` 3) * v_len)
-    return (ld, lenm)
+      let v_len = lenb + 1
+      v <- VUM.unsafeNew (v_len * 3)
+      let gov !i =
+            when (i < v_len) $ do
+              VUM.unsafeWrite v i i
+              gov (i + 1)
+          goi !i !na !ai_1 !v0 !v1 !v2 = do
+            let !(TU.Iter ai da) = TU.iter a na
+                goj !j !nb !bj_1 =
+                  when (j < lenb) $ do
+                    let !(TU.Iter bj db) = TU.iter b nb
+                        cost = if ai == bj then 0 else 1
+                    x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
+                    y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
+                    z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
+                    let g = min x (min y z)
+                    val <- (+ cost) <$> VUM.unsafeRead v (v2 + j - 1)
+                    VUM.unsafeWrite v (v1 + j + 1) $
+                      if i > 0 && j > 0 && ai == bj_1 && ai_1 == bj && val < g
+                        then val
+                        else g
+                    goj (j + 1) (nb + db) bj
+            when (i < lena) $ do
+              VUM.unsafeWrite v v1 (i + 1)
+              goj 0 0 'a'
+              goi (i + 1) (na + da) ai v1 v2 v0
+      gov 0
+      goi 0 0 'a' 0 v_len (v_len * 2)
+      ld <- VUM.unsafeRead v (lenb + (lena `mod` 3) * v_len)
+      return (ld, lenm)
   where
     lena = T.length a
     lenb = T.length b
