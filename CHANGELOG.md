@@ -1,3 +1,7 @@
+## Text Metrics 0.3.2
+
+* Works with `text-2.0`.
+
 ## Text Metrics 0.3.1
 
 * Fixed a bug in the implementation of Jaro-Winkler distance when two
