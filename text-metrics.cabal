@@ -32,7 +32,7 @@ library
         base >=4.15 && <5.0,
         containers >=0.5 && <0.7,
         text >=0.2 && <2.1,
-        vector >=0.11 && <0.13
+        vector >=0.11 && <0.14
 
     if flag(dev)
         ghc-options: -Wall -Werror
