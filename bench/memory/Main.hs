@@ -22,7 +22,7 @@ main = mainWith $ do
 
 -- | Perform a series to measurements with the same metric function.
 bmetric ::
-  NFData a =>
+  (NFData a) =>
   -- | Name of the benchmark group
   String ->
   -- | The function to benchmark
