@@ -21,7 +21,7 @@ main =
     ]
 
 -- | Produce benchmark group to test.
-btmetric :: NFData a => String -> (Text -> Text -> a) -> Benchmark
+btmetric :: (NFData a) => String -> (Text -> Text -> a) -> Benchmark
 btmetric name f = bgroup name (bs <$> stdSeries)
   where
     bs n = env (return (testData n, testData n)) (bench (show n) . nf (uncurry f))
