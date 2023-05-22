@@ -256,9 +256,9 @@ hamming a@(T.Text _ _ len) b =
       let !(TU.Iter cha da) = TU.iter a na
           !(TU.Iter chb db) = TU.iter b nb
        in if
-              | na == len -> r
-              | cha /= chb -> go (na + da) (nb + db) (r + 1)
-              | otherwise -> go (na + da) (nb + db) r
+            | na == len -> r
+            | cha /= chb -> go (na + da) (nb + db) (r + 1)
+            | otherwise -> go (na + da) (nb + db) r
 
 -- | Return the Jaro distance between two 'Text' values. Returned value is
 -- in the range from 0 (no similarity) to 1 (exact match).
