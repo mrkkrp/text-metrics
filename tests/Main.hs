@@ -5,7 +5,7 @@ module Main (main) where
 
 import Data.Ratio
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Data.Text.Metrics
 import Test.Hspec
 import Test.QuickCheck

@@ -39,13 +39,13 @@ where
 import Control.Monad
 import Control.Monad.ST
 import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as M
+import Data.Map.Strict qualified as M
 import Data.Ratio
 import Data.Text
-import qualified Data.Text as T
-import qualified Data.Text.Internal as T
-import qualified Data.Text.Unsafe as TU
-import qualified Data.Vector.Unboxed.Mutable as VUM
+import Data.Text qualified as T
+import Data.Text.Internal qualified as T
+import Data.Text.Unsafe qualified as TU
+import Data.Vector.Unboxed.Mutable qualified as VUM
 import GHC.Exts (inline)
 
 ----------------------------------------------------------------------------
