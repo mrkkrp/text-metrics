@@ -35,7 +35,9 @@ library
         vector >=0.11 && <0.14
 
     if flag(dev)
-        ghc-options: -Wall -Werror
+        ghc-options:
+            -Wall -Werror -Wredundant-constraints -Wpartial-fields
+            -Wunused-packages
 
     else
         ghc-options: -O2 -Wall
@@ -53,15 +55,12 @@ test-suite tests
         text-metrics
 
     if flag(dev)
-        ghc-options: -Wall -Werror
+        ghc-options:
+            -Wall -Werror -Wredundant-constraints -Wpartial-fields
+            -Wunused-packages
 
     else
         ghc-options: -O2 -Wall
-
-    if flag(dev)
-        ghc-options:
-            -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns
-            -Wnoncanonical-monad-instances
 
 benchmark bench-speed
     type:             exitcode-stdio-1.0
@@ -76,7 +75,9 @@ benchmark bench-speed
         text-metrics
 
     if flag(dev)
-        ghc-options: -O2 -Wall -Werror
+        ghc-options:
+            -Wall -Werror -Wredundant-constraints -Wpartial-fields
+            -Wunused-packages
 
     else
         ghc-options: -O2 -Wall
@@ -94,7 +95,9 @@ benchmark bench-memory
         weigh >=0.0.4
 
     if flag(dev)
-        ghc-options: -O2 -Wall -Werror
+        ghc-options:
+            -Wall -Werror -Wredundant-constraints -Wpartial-fields
+            -Wunused-packages
 
     else
         ghc-options: -O2 -Wall
