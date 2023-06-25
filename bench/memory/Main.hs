@@ -3,7 +3,7 @@ module Main (main) where
 import Control.DeepSeq
 import Control.Monad
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Data.Text.Metrics
 import Weigh
 
