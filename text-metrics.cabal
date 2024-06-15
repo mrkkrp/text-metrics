@@ -5,7 +5,7 @@ license:         BSD-3-Clause
 license-file:    LICENSE.md
 maintainer:      Mark Karpov <markkarpov92@gmail.com>
 author:          Mark Karpov <markkarpov92@gmail.com>
-tested-with:     ghc ==9.4.7 ghc ==9.6.3 ghc ==9.8.1
+tested-with:     ghc ==9.6.3 ghc ==9.8.2 ghc ==9.10.1
 homepage:        https://github.com/mrkkrp/text-metrics
 bug-reports:     https://github.com/mrkkrp/text-metrics/issues
 synopsis:        Calculate various string metrics efficiently
@@ -30,7 +30,7 @@ library
     default-language: GHC2021
     build-depends:
         base >=4.15 && <5,
-        containers >=0.5 && <0.7,
+        containers >=0.5 && <0.8,
         text >=0.2 && <2.2,
         vector >=0.11 && <0.14
 
