@@ -1,3 +1,8 @@
+## Text Metrics 0.3.3
+
+* Slightly optimized the `levenshtein` and `levenshteinNorm` functions. [PR
+  50](https://github.com/mrkkrp/text-metrics/pull/50).
+
 ## Text Metrics 0.3.2
 
 * Works with `text-2.0`.

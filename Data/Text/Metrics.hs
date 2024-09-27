@@ -40,6 +40,7 @@ import Control.Monad
 import Control.Monad.ST
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as M
+import Data.Primitive qualified as P
 import Data.Ratio
 import Data.Text
 import Data.Text qualified as T
@@ -85,29 +86,34 @@ levenshtein_ a b
   | T.null b = (lena, lenm)
   | otherwise = runST $ do
       let v_len = lenb + 1
-      v <- VUM.unsafeNew (v_len * 2)
+      v <- P.newPrimArray (v_len * 2)
       let gov !i =
             when (i < v_len) $ do
-              VUM.unsafeWrite v i i
+              P.writePrimArray v i i
               gov (i + 1)
           goi !i !na !v0 !v1 = do
             let !(TU.Iter ai da) = TU.iter a na
                 goj !j !nb =
                   when (j < lenb) $ do
                     let !(TU.Iter bj db) = TU.iter b nb
-                        cost = if ai == bj then 0 else 1
-                    x <- (+ 1) <$> VUM.unsafeRead v (v1 + j)
-                    y <- (+ 1) <$> VUM.unsafeRead v (v0 + j + 1)
-                    z <- (+ cost) <$> VUM.unsafeRead v (v0 + j)
-                    VUM.unsafeWrite v (v1 + j + 1) (min x (min y z))
-                    goj (j + 1) (nb + db)
+                    if ai == bj
+                      then do
+                        z <- P.readPrimArray v (v0 + j)
+                        P.writePrimArray v (v1 + j + 1) z
+                        goj (j + 1) (nb + db)
+                      else do
+                        x <- P.readPrimArray v (v1 + j)
+                        y <- P.readPrimArray v (v0 + j + 1)
+                        z <- P.readPrimArray v (v0 + j)
+                        P.writePrimArray v (v1 + j + 1) (1 + (min x (min y z)))
+                        goj (j + 1) (nb + db)
             when (i < lena) $ do
-              VUM.unsafeWrite v v1 (i + 1)
+              P.writePrimArray v v1 (i + 1)
               goj 0 0
               goi (i + 1) (na + da) v1 v0
       gov 0
       goi 0 0 0 v_len
-      ld <- VUM.unsafeRead v (lenb + if even lena then 0 else v_len)
+      ld <- P.readPrimArray v (lenb + if even lena then 0 else v_len)
       return (ld, lenm)
   where
     lena = T.length a
