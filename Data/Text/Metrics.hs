@@ -10,7 +10,7 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- The module provides efficient implementations of various strings metric
+-- The module provides efficient implementations of various string metric
 -- algorithms. It works with strict 'Text' values.
 --
 -- __Note__: before version /0.3.0/ the package used C implementations of
@@ -61,19 +61,19 @@ import GHC.Exts (inline)
 -- See also: <https://en.wikipedia.org/wiki/Levenshtein_distance>.
 --
 -- __Heads up__, before version /0.3.0/ this function returned
--- 'Data.Numeric.Natural'.
+-- 'Numeric.Natural'.
 levenshtein :: Text -> Text -> Int
 levenshtein a b = fst (levenshtein_ a b)
 
 -- | Return the normalized Levenshtein distance between two 'Text' values.
 -- Result is a non-negative rational number (represented as @'Ratio'
--- 'Data.Numeric.Natural'@), where 0 signifies no similarity between the
+-- 'Numeric.Natural'@), where 0 signifies no similarity between the
 -- strings, while 1 means exact match.
 --
 -- See also: <https://en.wikipedia.org/wiki/Levenshtein_distance>.
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
--- 'Data.Numeric.Natural'@.
+-- 'Numeric.Natural'@.
 levenshteinNorm :: Text -> Text -> Ratio Int
 levenshteinNorm = norm levenshtein_
 
@@ -128,7 +128,7 @@ levenshtein_ a b
 -- See also: <https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>.
 --
 -- __Heads up__, before version /0.3.0/ this function returned
--- 'Data.Numeric.Natural'.
+-- 'Numeric.Natural'.
 damerauLevenshtein :: Text -> Text -> Int
 damerauLevenshtein a b = fst (damerauLevenshtein_ a b)
 
@@ -139,7 +139,7 @@ damerauLevenshtein a b = fst (damerauLevenshtein_ a b)
 -- See also: <https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>.
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
--- 'Data.Numeric.Natural'@.
+-- 'Numeric.Natural'@.
 damerauLevenshteinNorm :: Text -> Text -> Ratio Int
 damerauLevenshteinNorm = norm damerauLevenshtein_
 
@@ -207,7 +207,7 @@ overlap a b =
 
 -- | Return the Jaccard similarity coefficient for two 'Text' values.
 -- Returned value is in the range from 0 (no similarity) to 1 (exact match).
--- Return 1 if both
+-- Return 1 if both 'Text' values are empty.
 --
 -- See also: <https://en.wikipedia.org/wiki/Jaccard_index>
 --
@@ -251,7 +251,7 @@ unionSize a b = M.foldl' (+) 0 (M.unionWith max a b)
 -- See also: <https://en.wikipedia.org/wiki/Hamming_distance>.
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Maybe'
--- 'Data.Numeric.Natural'@.
+-- 'Numeric.Natural'@.
 hamming :: Text -> Text -> Maybe Int
 hamming a@(T.Text _ _ len) b =
   if T.length a == T.length b
@@ -272,7 +272,7 @@ hamming a@(T.Text _ _ len) b =
 -- While the algorithm is pretty clear for artificial examples (like those
 -- from the linked Wikipedia article), for /arbitrary/ strings, it may be
 -- hard to decide which of two strings should be considered as one having
--- “reference” order of characters (order of matching characters in an
+-- “reference” order of characters (order of matching characters is an
 -- essential part of the definition of the algorithm). This makes us
 -- consider the first string the “reference” string (with correct order of
 -- characters). Thus generally,
@@ -287,7 +287,7 @@ hamming a@(T.Text _ _ len) b =
 -- @since 0.2.0
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
--- 'Data.Numeric.Natural'@.
+-- 'Numeric.Natural'@.
 jaro :: Text -> Text -> Ratio Int
 jaro a b =
   if T.null a || T.null b
@@ -345,7 +345,7 @@ jaro a b =
 -- @since 0.2.0
 --
 -- __Heads up__, before version /0.3.0/ this function returned @'Ratio'
--- 'Data.Numeric.Natural'@.
+-- 'Numeric.Natural'@.
 jaroWinkler :: Text -> Text -> Ratio Int
 jaroWinkler a b = dj + (1 % 10) * l * (1 - dj)
   where

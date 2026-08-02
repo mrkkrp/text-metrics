@@ -6,7 +6,7 @@
 [![Stackage LTS](http://stackage.org/package/text-metrics/badge/lts)](http://stackage.org/lts/package/text-metrics)
 [![CI](https://github.com/mrkkrp/text-metrics/actions/workflows/ci.yaml/badge.svg)](https://github.com/mrkkrp/text-metrics/actions/workflows/ci.yaml)
 
-The library provides efficient implementations of various strings metric
+The library provides efficient implementations of various string metric
 algorithms. It works with strict `Text` values.
 
 The current version of the package implements:
@@ -23,19 +23,19 @@ The current version of the package implements:
 
 ## Comparison with the `edit-distance` package
 
-There is
+There is the
 [`edit-distance`](https://hackage.haskell.org/package/edit-distance) package
 whose scope overlaps with the scope of this package. The differences are:
 
-* `edit-distance` allows to specify costs for every operation when
+* `edit-distance` allows specifying costs for every operation when
   calculating Levenshtein distance (insertion, deletion, substitution, and
   transposition). This is rarely needed though in real-world applications,
   IMO.
 
-* `edit-distance` only provides Levenshtein distance, `text-metrics` aims to
-  provide implementations of most string metrics algorithms.
+* `edit-distance` only provides Levenshtein distance; `text-metrics` aims to
+  provide implementations of most string metric algorithms.
 
-* `edit-distance` works on `Strings`, while `text-metrics` works on strict
+* `edit-distance` works on `String`s, while `text-metrics` works on strict
   `Text` values.
 
 ## Implementation
@@ -56,4 +56,4 @@ Pull requests are also welcome.
 
 Copyright © 2016–present Mark Karpov
 
-Distributed under BSD 3 clause license.
+Distributed under the BSD 3-clause license.
