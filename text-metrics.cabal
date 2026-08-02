@@ -38,7 +38,7 @@ library
     if flag(dev)
         ghc-options:
             -Wall -Werror -Wredundant-constraints -Wpartial-fields
-            -Wunused-packages
+            -Wunused-packages -haddock -Winvalid-haddock
 
     else
         ghc-options: -O2 -Wall
@@ -58,7 +58,7 @@ test-suite tests
     if flag(dev)
         ghc-options:
             -Wall -Werror -Wredundant-constraints -Wpartial-fields
-            -Wunused-packages
+            -Wunused-packages -haddock -Winvalid-haddock
 
     else
         ghc-options: -O2 -Wall
@@ -78,7 +78,7 @@ benchmark bench-speed
     if flag(dev)
         ghc-options:
             -Wall -Werror -Wredundant-constraints -Wpartial-fields
-            -Wunused-packages
+            -Wunused-packages -haddock -Winvalid-haddock
 
     else
         ghc-options: -O2 -Wall
@@ -98,7 +98,7 @@ benchmark bench-memory
     if flag(dev)
         ghc-options:
             -Wall -Werror -Wredundant-constraints -Wpartial-fields
-            -Wunused-packages
+            -Wunused-packages -haddock -Winvalid-haddock
 
     else
         ghc-options: -O2 -Wall
